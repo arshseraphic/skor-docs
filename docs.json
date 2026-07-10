@@ -108,8 +108,5 @@
       "instagram": "https://www.instagram.com/skortorent"
     }
   },
-  "api": {
-    "openapi": "https://docs.skortorent.com/dev-modularapi.yaml"
-  },
   "description": "Welcome to the Skor API docs! This site demonstrates how to use use SKOR APIs."
 }
