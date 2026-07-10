@@ -84,7 +84,7 @@
     ]
   },
   "logo": {
-    "light": "/images/logo(3).svg",
+    "light": "/images/logo(2).svg",
     "dark": "/images/logo(3).svg"
   },
   "navbar": {
@@ -114,9 +114,8 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "linkedin": "https://www.linkedin.com/company/skortorent",
+      "instagram": "https://www.instagram.com/skortorent"
     }
   },
   "api": {
