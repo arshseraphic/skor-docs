@@ -96,15 +96,7 @@
     }
   },
   "contextual": {
-    "options": [
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": []
   },
   "footer": {
     "socials": {
