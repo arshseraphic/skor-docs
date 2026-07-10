@@ -1,17 +1,19 @@
 openapi: 3.1.0
 
 servers:
-  # - url: https://api.skortorent.com/api/v1
   - url: https://dev-api.skortorent.com/api/v1
-    description: Main server
+    description: Sandbox
+  - url: https://api.skortorent.com/api/v1
+    description: Live
 
 info:
   title: SKOR Modular API
   version: 1.0.0
   description: |
     ## Overview
-    This is SKOR's API v1. It provides access to modular APIs
-    for managing tenants, keys, and webhooks.
+    This is the SKOR Modular API v1. It provides access to tenant
+    workflows, API keys, webhooks, document processing, identity
+    verification, banking connectivity, and forensic analysis.
 
     ## Error Statuses
 

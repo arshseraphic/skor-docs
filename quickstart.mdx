@@ -1,26 +1,29 @@
 ---
 title: "Quickstart"
-description: "Generate a SKOR API token and make authenticated requests"
+description: "Generate a Modular API token and make authenticated requests"
 ---
 
-Use this guide to authenticate with the SKOR API and make your first protected request.
+Use this guide to authenticate with the SKOR Modular API and make your first protected request.
 
 ## Prerequisites
 
 Before you begin, make sure you have:
 
-- A SKOR `client_id`
-- A SKOR `client_secret`
-- The SKOR API base URL for your environment
+- A SKOR Modular API `client_id`
+- A SKOR Modular API `client_secret`
+- The SKOR Modular API base URL for your environment
 
-The examples below use the development API server from the OpenAPI specification:
+## Choose a base URL
 
-```text
-https://dev-api.skortorent.com/api/v1
-```
+| Environment | Base URL |
+| --- | --- |
+| Sandbox | `https://dev-api.skortorent.com/api/v1` |
+| Live | `https://api.skortorent.com/api/v1` |
+
+The examples below use sandbox. Replace the base URL with live when you are ready to use production credentials.
 
 <Steps>
-  <Step title="Request an access token">
+  <Step title="Generate an access token">
     Send a token request to `/keys/generate-token` using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
 
     ```bash
@@ -28,7 +31,7 @@ https://dev-api.skortorent.com/api/v1
       -u "$SKOR_CLIENT_ID:$SKOR_CLIENT_SECRET"
     ```
 
-    The response returns a token that you use to authenticate protected API requests.
+    The response returns a token that you use to authenticate protected Modular API requests.
   </Step>
 
   <Step title="Store the token securely">
@@ -39,7 +42,7 @@ https://dev-api.skortorent.com/api/v1
     ```
   </Step>
 
-  <Step title="Call protected APIs">
+  <Step title="Call protected endpoints">
     Send the token as a bearer token in the `Authorization` header.
 
     ```bash

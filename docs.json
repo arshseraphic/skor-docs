@@ -1,14 +1,13 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Documentation | Skor - The Safest Way to Rent",
+  "name": "SKOR Modular API Documentation",
   "colors": {
     "primary": "#3FB950",
     "light": "#3FB950",
     "dark": "#253837"
   },
   "favicon": "/favicon.svg",
-  "openapi": "/api-reference/openapi.yaml",
   "navigation": {
     "groups": [
       {
@@ -21,6 +20,7 @@
       {
         "group": "API Reference",
         "icon": "square-terminal",
+        "openapi": "/api-reference/openapi.yaml",
         "pages": [
           "api-reference/introduction",
           {
@@ -98,5 +98,5 @@
       "instagram": "https://www.instagram.com/skortorent"
     }
   },
-  "description": "Documentation for the SKOR API."
+  "description": "Documentation for the SKOR Modular API."
 }
