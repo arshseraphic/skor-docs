@@ -30,7 +30,6 @@
       {
         "group": "API Reference",
         "icon": "square-terminal",
-        "openapi": "https://docs.skortorent.com/dev-modularapi.yaml",
         "pages": [
           {
             "group": "Keys",
@@ -81,7 +80,7 @@
       },
       {
         "label": "Support",
-        "href": "mailto:info@skortorentinfo@skortorent.com"
+        "href": "mailto:info@skortorent.com"
       }
     ],
     "primary": {
