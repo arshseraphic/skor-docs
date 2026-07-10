@@ -1,0 +1,126 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Documentation | Skor - The Safest Way to Rent",
+  "colors": {
+    "primary": "#3FB950",
+    "light": "#3FB950",
+    "dark": "#253837"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "pages": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "index",
+          "quickstart"
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://mintlify.com/docs",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Blog",
+          "href": "https://mintlify.com/blog",
+          "icon": "newspaper"
+        }
+      ]
+    },
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "index",
+          "quickstart",
+          "api-reference/introduction"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "icon": "square-terminal",
+        "openapi": "https://docs.skortorent.com/dev-modularapi.yaml",
+        "pages": [
+          {
+            "group": "Keys",
+            "pages": [
+              "POST /keys/create-key",
+              "GET /keys/get-key"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "POST /webhooks/create-webhook",
+              "GET /webhooks/list-webhooks",
+              "GET /webhooks/get-webhook/{webhookId}",
+              "PUT /webhooks/update-webhook/{webhookId}",
+              "DELETE /webhooks/delete-webhook/{webhookId}"
+            ]
+          },
+          {
+            "group": "Tenants",
+            "pages": [
+              "POST /tenants/create-tenant",
+              "PUT /tenants/update-tenant/{tenantId}",
+              "DELETE /tenants/delete-tenant/{tenantId}",
+              "GET /tenants/get-tenant/{tenantId}",
+              "GET /tenants/get-all-tenants",
+              "POST /tenants/upload-documents/{tenantId}",
+              "POST /tenants/initiate-clave/{tenantId}",
+              "GET /tenants/get-documents/{tenantId}",
+              "GET /tenants/initiate-kyc/{tenantId}",
+              "GET /tenants/initiate-bank/{tenantId}",
+              "GET /tenants/run-forensic/{tenantId}"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/images/logo(3).svg",
+    "dark": "/images/logo(3).svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hi@mintlify.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://app.mintlify.com"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/mintlify",
+      "github": "https://github.com/mintlify",
+      "linkedin": "https://linkedin.com/company/mintlify"
+    }
+  },
+  "api": {
+    "openapi": "https://docs.skortorent.com/dev-modularapi.yaml"
+  },
+  "description": "Welcome to the Skor API docs! This site demonstrates how to use use SKOR APIs."
+}
