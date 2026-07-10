@@ -1,47 +1,54 @@
 ---
 title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+description: "Generate a SKOR API token and make authenticated requests"
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+Use this guide to authenticate with the SKOR API and make your first protected request.
 
 ## Prerequisites
 
-Before you begin, you must have:
+Before you begin, make sure you have:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- A SKOR `client_id`
+- A SKOR `client_secret`
+- The SKOR API base URL for your environment
 
-## Get started
+The examples below use the development API server from the OpenAPI specification:
+
+```text
+https://dev-api.skortorent.com/api/v1
+```
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Request an access token">
+    Send a token request to `/keys/generate-token` using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
 
     ```bash
-    npm install your-package
+    curl -X POST "https://dev-api.skortorent.com/api/v1/keys/generate-token" \
+      -u "$SKOR_CLIENT_ID:$SKOR_CLIENT_SECRET"
+    ```
+
+    The response returns a token that you use to authenticate protected API requests.
+  </Step>
+
+  <Step title="Store the token securely">
+    Treat the token as a secret. Do not expose it in client-side code, logs, or public repositories.
+
+    ```bash
+    export SKOR_ACCESS_TOKEN="<token>"
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Call protected APIs">
+    Send the token as a bearer token in the `Authorization` header.
 
     ```bash
-    your-cli init
-    ```
-  </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
-
-    ```bash
-    your-cli start
+    curl "https://dev-api.skortorent.com/api/v1/tenants/get-all-tenants" \
+      -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
     ```
   </Step>
 </Steps>
 
 <Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
-
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+  Need credentials or help with authentication? Contact [info@skortorent.com](mailto:info@skortorent.com).
 </Tip>

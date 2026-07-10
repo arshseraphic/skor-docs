@@ -8,34 +8,25 @@
     "dark": "#253837"
   },
   "favicon": "/favicon.svg",
+  "openapi": "/api-reference/openapi.yaml",
   "navigation": {
-    "pages": [
+    "groups": [
       {
-        "group": "Getting Started",
+        "group": "Guides",
         "pages": [
           "index",
           "quickstart"
-        ]
-      }
-    ],
-    "groups": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart",
-          "api-reference/introduction"
         ]
       },
       {
         "group": "API Reference",
         "icon": "square-terminal",
         "pages": [
+          "api-reference/introduction",
           {
-            "group": "Keys",
+            "group": "Token",
             "pages": [
-              "POST /keys/create-key",
-              "GET /keys/get-key"
+              "POST /keys/generate-token"
             ]
           },
           {
@@ -107,5 +98,5 @@
       "instagram": "https://www.instagram.com/skortorent"
     }
   },
-  "description": "Welcome to the Skor API docs! This site demonstrates how to use use SKOR APIs."
+  "description": "Documentation for the SKOR API."
 }

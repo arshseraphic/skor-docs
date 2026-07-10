@@ -1,0 +1,1279 @@
+openapi: 3.1.0
+
+servers:
+  # - url: https://api.skortorent.com/api/v1
+  - url: https://dev-api.skortorent.com/api/v1
+    description: Main server
+
+info:
+  title: SKOR Modular API
+  version: 1.0.0
+  description: |
+    ## Overview
+    This is SKOR's API v1. It provides access to modular APIs
+    for managing tenants, keys, and webhooks.
+
+    ## Error Statuses
+
+    The API uses standard HTTP status codes to indicate the success
+    or failure of requests. Each error response provides guidance
+    to help identify the issue and take corrective action.
+
+    ### Success — `200 OK`
+    The request was processed successfully and the expected response
+    data is returned.
+
+    ### Validation Error — `400 Bad Request`
+    The request is invalid due to missing, malformed, or incorrect
+    parameters.
+
+    **Common causes:**
+    - Required fields are missing from the request.
+    - Invalid data formats or unsupported values are provided.
+    - File size or payload limits are exceeded.
+
+    **How to resolve:**
+    - Verify all required parameters are present.
+    - Ensure the request payload matches the documented schema.
+    - Validate data formats and constraints before retrying.
+
+    ### Unauthorized — `401 Unauthorized`
+    Authentication failed or the provided token is missing or invalid.
+
+    **Common causes:**
+    - The `Authorization` header is missing.
+    - An invalid or expired bearer token is provided.
+
+    **How to resolve:**
+    - Ensure the token is included in the request as an `Authorization: Bearer <token>` header.
+    - Verify the token is valid and has not expired.
+    - Generate a new token if required.
+
+    ### Not Found — `404 Not Found`
+    The requested resource does not exist or is not accessible.
+
+    **Common causes:**
+    - An invalid or non-existent resource identifier.
+    - The resource has not been created or has been deleted.
+
+    **How to resolve:**
+    - Confirm the resource identifier is correct.
+    - Ensure the resource exists before accessing it.
+
+    ### Server Error — `500 Internal Server Error`
+    An unexpected error occurred on the server while processing the request.
+
+    **How to resolve:**
+    - Retry the request after a short delay.
+    - If the issue persists, **[contact us](mailto:info@skortorent.com)** with relevant request details.
+
+    ### Need Help?
+    If you encounter unexpected behavior,
+    please **[contact us](mailto:info@skortorent.com)** for assistance.
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        HTTP Basic Authentication using your Modular API credentials.
+        Used exclusively to authenticate the token generation request.
+
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        HTTP Bearer Authentication. Pass the token generated via
+        `/keys/generate-token` as `Authorization: Bearer <token>`.
+
+  parameters:
+    TenantIdParam:
+      name: tenantId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    WebhookIdParam:
+      name: webhookId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    SuccessResponse:
+      description: Successful response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ["success"]
+              message:
+                type: string
+              data:
+                type: object
+
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: ["error"]
+              message:
+                type: string
+
+  schemas:
+    TenantDocument:
+      type: object
+      description: Tenant uploaded document metadata
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the tenant document
+
+        tenant_id:
+          type: string
+          description: Identifier of the tenant to whom this document belongs
+
+        file_name:
+          type: string
+          description: >
+            Stored file name in the storage bucket.
+            To download the document, construct the full URL as:
+            `https://skorcdn.blob.core.windows.net/uploads/{file_name}`
+
+        type:
+          type: string
+          description: >
+            If the document was uploaded with `fileType = unknown-type`,
+            this value is automatically identified by Skor Lite.
+            Otherwise, it reflects the `fileType` provided during upload.
+
+        verified:
+          type: boolean
+          description: >
+            Indicates whether the document was obtained from a verified source
+            such as KYC, Cl@ve, or other trusted integrations.
+
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the document was created
+
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp when the document was last updated
+
+paths:
+  ####################
+  # KEYS
+  ####################
+  /keys/generate-token:
+    post:
+      tags: [Token]
+      summary: Generate Token
+      security:
+        - BasicAuth: []
+      description: |
+        Generates an access **token** that is required to authenticate requests
+        to protected APIs.
+
+        ### Authentication
+
+        - Call this endpoint using **HTTP Basic Authentication**, passing your
+          Modular API credentials as the username and password.
+
+        ### Token Usage
+
+        - The generated token must be included as a **Bearer token** in the
+          `Authorization` header when calling other protected APIs:
+
+          **`Authorization: Bearer <token>`**
+
+        - Requests made without this header, or with an invalid or expired
+          token, will be rejected.
+
+        ### Security Notes
+
+        - Treat the token as a secret credential.
+        - Do not expose the token in client-side applications.
+        - If the token is suspected to be compromised, ***[contact us](mailto:info@skortorent.com)*** to
+          request token revocation or rotation.
+
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  ####################
+  # WEBHOOKS
+  ####################
+  /webhooks/create-webhook:
+    post:
+      tags: [Webhooks]
+      summary: Create Webhook
+      description: |
+        Creates a webhook endpoint to receive system events.
+
+        The provided webhook URL **must accept POST requests**.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /webhooks/list-webhooks:
+    get:
+      tags: [Webhooks]
+      summary: List Webhooks
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /webhooks/get-webhook/{webhookId}:
+    get:
+      tags: [Webhooks]
+      summary: Get Webhook
+      parameters:
+        - $ref: "#/components/parameters/WebhookIdParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /webhooks/update-webhook/{webhookId}:
+    put:
+      tags: [Webhooks]
+      summary: Update Webhook
+      parameters:
+        - $ref: "#/components/parameters/WebhookIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                status:
+                  type: string
+                  enum:
+                    - active
+                    - inactive
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /webhooks/delete-webhook/{webhookId}:
+    delete:
+      tags: [Webhooks]
+      summary: Delete Webhook
+      parameters:
+        - $ref: "#/components/parameters/WebhookIdParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  ####################
+  # TENANTS
+  ####################
+  /tenants/create-tenant:
+    post:
+      tags: [Tenants]
+      summary: Create Tenant
+      description: |
+        Creates a new tenant profile using the provided tenant information.
+
+        A unique **tenant identifier** (`id`) is returned upon successful creation.
+        This identifier is required and must be supplied as the `tenantId` path
+        parameter for all subsequent tenant-related API operations.
+
+        All endpoints that include `{tenantId}` in the request path expect this value
+        to be replaced with the tenant identifier returned by this API.
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - fname
+                - lname
+                - phone_number
+                - post_code
+                - dob
+                - employment_status
+                - current_annual_income
+                - currency
+              properties:
+                email:
+                  type: string
+                  format: email
+                fname:
+                  type: string
+                lname:
+                  type: string
+                dni_nie:
+                  type: string
+                  description: >
+                    Either `dni_nie` or `passport_id` is required.
+                    At least one of these identification fields must be provided.
+                passport_id:
+                  type: string
+                  description: >
+                    Either `dni_nie` or `passport_id` is required.
+                    At least one of these identification fields must be provided.
+                post_code:
+                  type: string
+                  description: Postal code (numbers only)
+                  minLength: 5
+                  maxLength: 5
+                dob:
+                  type: string
+                  format: date
+                  description: Date of birth format ```(YYYY-MM-DD)```
+                employment_status:
+                  type: string
+                  enum:
+                    - employed
+                    - self_employed
+                    - student
+                    - unemployed
+                    - retired
+                    - public_servant
+                employment_category:
+                  type: string
+                  enum:
+                    - public_servant
+                    - military
+                    - permanent
+                    - temporary
+                    - permanent_seasonal_worker
+                    - paternity_or_maternity_leave
+                    - medical_leave
+                    - ownACompany
+                    - freelancer
+                current_annual_income:
+                  type: number
+                  minimum: 0
+
+                currency:
+                  type: string
+                  minLength: 3
+                  maxLength: 3
+                phone_number:
+                  type: string
+                  description: Phone number (numbers only)
+                  minLength: 6
+                  maxLength: 15
+
+                protected_housing_docs:
+                  type: array
+                  items:
+                    type: string
+                about_me:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/update-tenant/{tenantId}:
+    put:
+      tags: [Tenants]
+      summary: Update Tenant
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              properties:
+                email:
+                  type: string
+                  format: email
+                fname:
+                  type: string
+                lname:
+                  type: string
+                dni_nie:
+                  type: string
+                  description: >
+                    Either `dni_nie` or `passport_id` is required.
+                    At least one of these identification fields must be provided.
+                passport_id:
+                  type: string
+                  description: >
+                    Either `dni_nie` or `passport_id` is required.
+                    At least one of these identification fields must be provided.
+                post_code:
+                  type: string
+                  description: Postal code (numbers only)
+                  minLength: 5
+                  maxLength: 5
+                dob:
+                  type: string
+                  format: date
+                employment_status:
+                  type: string
+                  enum:
+                    - employed
+                    - self_employed
+                    - student
+                    - unemployed
+                    - retired
+                    - public_servant
+                employment_category:
+                  type: string
+                  enum:
+                    - public_servant
+                    - military
+                    - permanent
+                    - temporary
+                    - permanent_seasonal_worker
+                    - paternity_or_maternity_leave
+                    - medical_leave
+                    - ownACompany
+                    - freelancer
+                current_annual_income:
+                  type: number
+                  minimum: 0
+
+                currency:
+                  type: string
+                  minLength: 3
+                  maxLength: 3
+                phone_number:
+                  type: string
+                  description: Phone number (numbers only)
+                  minLength: 6
+                  maxLength: 15
+
+                protected_housing_docs:
+                  type: array
+                  items:
+                    type: string
+                about_me:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/delete-tenant/{tenantId}:
+    delete:
+      tags: [Tenants]
+      summary: Delete Tenant
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/get-tenant/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Get Tenant
+      description: |
+        Retrieves the complete Tenant profile, including personal details,
+        verification statuses, forensic results, and financial information.
+
+        This endpoint acts as the **single source of truth** for the tenant’s
+        current state and aggregated data collected across KYC, document analysis,
+        forensic processing, and banking integrations.
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+      responses:
+        "200":
+          description: Tenant details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [success]
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    description: Aggregated tenant profile and analysis data.
+                    properties:
+                      # --------------------
+                      # Core Tenant Details
+                      # --------------------
+                      id:
+                        type: string
+                        description: Unique identifier of the tenant.
+                      email:
+                        type: string
+                        format: email
+                        description: Tenant's email address.
+                      fname:
+                        type: string
+                        description: Tenant's first name.
+                      lname:
+                        type: string
+                        description: Tenant's last name.
+                      phone_number:
+                        type: string
+                        description: Tenant's phone number.
+                      post_code:
+                        type: string
+                        description: Tenant's postal code.
+                      dob:
+                        type: string
+                        format: date-time
+                        description: Tenant's date of birth.
+                      employment_status:
+                        type: string
+                        description: Current employment status of the tenant.
+                      employment_category:
+                        type: string
+                        description: Employment category of the tenant.
+                      current_annual_income:
+                        type: number
+                        description: Declared annual income of the tenant.
+                      currency:
+                        type: string
+                        description: Currency of the declared income.
+                      protected_housing:
+                        type: boolean
+                        description: Indicates whether the tenant is associated with protected housing.
+                      about_me:
+                        type: string
+                        description: Additional information provided by the tenant.
+
+                      # --------------------
+                      # KYC & Identity
+                      # --------------------
+                      kyc_success:
+                        type: boolean
+                        description: Indicates whether KYC verification was completed successfully.
+                      kyc_data:
+                        type: object
+                        description: |
+                          Raw and processed KYC verification data of KYC.
+                        properties:
+                          kyc_user:
+                            type: object
+                            description: |
+                              Contains extracted data submitted by the user during the KYC process.
+
+                          kyc_doc:
+                            type: object
+                            description: |
+                              Data related to documents uploaded by the tenant during the
+                              KYC flow (for example, identity documents submitted for verification).
+
+                          kyc_doc_data:
+                            type: object
+                            description: |
+                              Detailed document data returned after processing the uploaded
+                              documents.
+
+                          kyc_workflow_res:
+                            type: object
+                            description: |
+                              Workflow execution results, representing the outcome
+                              of the configured KYC workflow and associated checks.
+
+                          kyc_error:
+                            type: object
+                            nullable: true
+                            description: |
+                              Error information returned in case the KYC process fails
+                              or encounters issues during verification.
+
+                          kyc_status:
+                            type: string
+                            description: |
+                              Current KYC status.
+
+                      # --------------------
+                      # Financial Errors
+                      # --------------------
+                      financial_info_errors:
+                        type: object
+                        nullable: true
+                        description: |
+                          Contains error details related to banking or financial
+                          analysis (for example, Financial analysis failures).
+
+                      # --------------------
+                      # Extra / Aggregated Data
+                      # --------------------
+                      extra_data:
+                        type: object
+                        description: Aggregated data generated from multiple SKOR services.
+                        properties:
+                          public_housing_docs:
+                            type: array
+                            description: Documents provided to validate public or protected housing status.
+                            items:
+                              type: string
+                          profile_summary:
+                            type: object
+                            description: High-level tenant profile summary generated by SKOR Lite.
+                          document_analysis:
+                            type: object
+                            description: Results of document analysis performed by SKOR Lite.
+                          experian_json:
+                            type: object
+                            description: |
+                              Data received from Experian, used to evaluate defaulter
+                              status.
+                          forensic_analysis:
+                            type: object
+                            description: |
+                              Forensic analysis results generated by SKOR Lite.
+
+                      # --------------------
+                      # Banking & Financial Data
+                      # --------------------
+                      bank_data:
+                        type: object
+                        description: Banking and financial analysis data for the tenant.
+                        properties:
+                          bank_data:
+                            type: object
+                            description: Raw banking data.
+                          financial_data:
+                            type: object
+                            description: |
+                              Financial analysis data generated after processing Bank data.
+
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/get-all-tenants:
+    get:
+      tags: [Tenants]
+      summary: Get All Tenants
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/upload-documents/{tenantId}:
+    post:
+      tags: [Tenants]
+      summary: Upload Tenant Documents
+      description: |
+        Upload one or more documents for a tenant.
+        At least one document is required.
+
+        **File size limits:**
+        - Each individual document must not exceed **4 MB**.
+        - The combined size of all documents uploaded in a single request
+          must not exceed **20 MB**.
+
+        If `fileType` is set to `unknown-type`, document analysis will be initiated
+        automatically after upload.
+
+        ### Asynchronous Processing
+
+        Document analysis is performed as an **Asynchronous operation**.
+        The API response confirms successful upload, while analysis is processed
+        in the background.
+
+        ### Document Analysis Completion Webhook
+
+        When document analysis from Skor Lite is completed successfully, a webhook
+        event with the name `DOCUMENT_ANALYSIS_DATA` is sent to the configured
+        webhook endpoint.
+
+        **The webhook payload contains:**
+        - `event`: Event name (`DOCUMENT_ANALYSIS_DATA`)
+        - `data`: Document analysis result data
+
+        In case of document analysis failure, the process is automatically handled
+        by the SKOR system and does not require manual retries from the client.
+
+        The configured webhook endpoint **must accept POST requests**.
+
+        ### Required Documents by Employment Type
+        The documents required for a tenant depend on their declared
+        **employment status**. Each employment type requires documents
+        across one or more of the following categories:
+
+        - **Identification**: Documents used to verify the tenant’s identity
+        - **Employment Status**: Documents proving current employment or activity
+        - **Income / Tax Documents**: Documents used to assess income and financial stability
+
+        ### Student:
+        **Identification**
+        - Passport
+        - National Identity Card (Front)
+        - National Identity Card (Back)
+        - Residence Permit (Front)
+        - Residence Permit (Back)
+        **Employment / Status**
+        - University Acceptance Letter
+        - Student Registration Contract
+
+        ### Employed:
+
+        **Identification**
+        - Passport
+        - National Identity Card (Front)
+        - National Identity Card (Back)
+        - Residence Permit (Front)
+        - Residence Permit (Back)
+
+        **Employment Status**
+        - Employment Contract
+        - Working Life Certificate
+
+        **Income Documents**
+        - Payslip
+        - Deduction Certificate
+        - Last Annual Tax Report (Model 100)
+
+        ### Self-Employed (Freelancer):
+
+        **Identification**
+        - Passport
+        - National Identity Card (Front)
+        - National Identity Card (Back)
+        - Residence Permit (Front)
+        - Residence Permit (Back)
+
+        **Employment Status**
+        - Employment Contract
+        - Working Life Certificate
+
+        **Income Documents**
+        - Last Annual Tax Report (Model 100)
+        - Last Fractionated Tax Report (Model 130)
+        - Deduction Certificate
+        - Last Quarterly VAT Tax (Form 303)
+
+        ### Self-Employed (Own a Company):
+
+          **Identification**
+          - Passport
+          - National Identity Card (Front)
+          - National Identity Card (Back)
+          - Residence Permit (Front)
+          - Residence Permit (Back)
+
+          **Employment Status**
+          - Working Life Certificate
+
+          **Income Documents**
+          - Last Annual Tax Report (Model 100)
+          - Last Quarterly VAT Tax (Form 303)
+          - Deduction Certificate
+          - Last Year’s Corporate Tax Return
+          - Last Year’s Corporate Balance Sheet
+          - Last Year’s Corporate Profit & Loss Statement
+
+        ### Retired:
+
+        **Identification**
+        - Passport
+        - National Identity Card (Front)
+        - National Identity Card (Back)
+        - Residence Permit (Front)
+        - Residence Permit (Back)
+
+        **Income Documents**
+        - Comprehensive Certificate of Benefits
+        - Last Revalorization Letter
+
+        ### Unemployed:
+
+        **Identification**
+        - Passport
+        - National Identity Card (Front)
+        - National Identity Card (Back)
+        - Residence Permit (Front)
+        - Residence Permit (Back)
+
+        **Employment History**
+        - Working Life Certificate
+
+        **Income Documents**
+        - Comprehensive Certificate of Benefits
+        - Last Annual Tax Report (Model 100)
+
+
+        ### Public Servant:
+
+        **Identification**
+        - Passport
+        - National Identity Card (Front)
+        - National Identity Card (Back)
+        - Residence Permit (Front)
+        - Residence Permit (Back)
+
+        **Employment Status**
+        - Working Life Certificate
+
+        **Income / Tax Documents**
+        - Last Annual Tax Report (Model 100)
+        - Payslip
+        - Deduction Certificate
+
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - docs
+                - fileType
+              properties:
+                docs:
+                  type: array
+                  minItems: 1
+                  description: >
+                    One or more documents to upload.
+                    Each document must not exceed 4 MB.
+                    The total upload size per request must not exceed 20 MB.
+
+                    Allowed file types:
+                    - application/pdf
+                    - image/jpeg
+                    - image/jpg
+                    - image/png
+
+                  items:
+                    type: string
+                    format: binary
+                    contentMediaType:
+                      - application/pdf
+                      - image/jpeg
+                      - image/jpg
+                      - image/png
+
+                fileType:
+                  type: string
+                  description: >
+                    Type of the uploaded document.
+                    If set to `unknown-type`, document analysis will be triggered.
+
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          description: Invalid input (missing fileType or documents)
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          description: Tenant not found
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/initiate-clave/{tenantId}:
+    post:
+      tags: [Tenants]
+      summary: Initiate Cl@ve
+      description: |
+        Initiates the Cl@ve identity verification process for a tenant.
+
+        ### Asynchronous Operation
+        This endpoint initiates an **Asynchronous process**. The API response
+        confirms that the Cl@ve flow has been started, While document
+        downloads are completed in the background.
+
+        **How this flow works:**
+        1. Provide a `redirect_url` where the tenant should be redirected after completing verification.
+        2. The API will respond with a verification link.
+        3. Redirect the tenant to the provided link.
+        4. The tenant completes identity verification by entering their details on the Cl@ve page.
+        5. After successful verification, identity documents are automatically downloaded.
+        6. Once the process is complete, call ***Get Tenant Documents*** to retrieve the downloaded documents.
+
+
+        **Important:**
+        - The `redirect_url` must be a valid, publicly accessible URL.
+        - Document availability depends on successful completion of the Cl@ve flow.
+        - This endpoint only initiates the process; it does not return documents immediately.
+
+        **Clave completion webhook:**
+        When Clave flow is completed successfully, a webhook event
+        `CLAVE_SUCCESS` is sent.
+
+        **The webhook payload contains:**
+        - `event`: Event name (`CLAVE_SUCCESS`)
+        - `data`: null (This webhook event is used only to indicate that the Clave flow has completed successfully and documents are downloaded)
+
+        The configured webhook endpoint **must accept POST requests**.
+
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - redirect_url
+              properties:
+                redirect_url:
+                  type: string
+                  format: uri
+                  description: URL to redirect the tenant after completing Cl@ve verification
+                  example: "https://yourapp.com/kyc/callback"
+
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/get-documents/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Get Tenant Documents
+      description: >
+        Fetch all documents uploaded by a tenant.
+
+        The API returns only `file_name`.
+        To download a document, construct the URL as:
+        `https://skorcdn.blob.core.windows.net/uploads/{file_name}`
+
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+
+      responses:
+        "200":
+          description: Tenant documents fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TenantDocument"
+
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/initiate-kyc/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Initiate KYC
+      description: |
+        Initiates the KYC verification process for a tenant.
+
+        ### Asynchronous Operation
+        This endpoint initiates an **asynchronous process**. The API response
+        confirms that the KYC flow has been started, while identity verification
+        continues in the background. Completion of the KYC process should be
+        determined using webhook events or iframe events, not by the API response.
+
+        **KYC completion webhook:**
+        Once KYC verification is completed successfully, a webhook event
+          `KYC_VERIFICATION_DATA` is sent.
+
+        **The webhook payload contains:**
+        - `event`: Event name (`KYC_VERIFICATION_DATA`)
+        - `data`: KYC verification result data
+
+        The configured webhook endpoint **must accept POST requests**.
+
+        **Iframe events:**
+        When KYC is initiated via iframe, the following events are sent to the parent window:
+
+        - `KYC_COMPLETED`:
+          On successful KYC completion
+
+        - `KYC_ERROR`:
+          On KYC error or failure
+
+        - `KYC_USER_EXIT`: 
+          If the user exits the KYC flow
+
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/initiate-bank/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Initiate Bank
+      description: |
+        Initiates the bank connection flow for a tenant.
+
+        ### Asynchronous Operation
+
+        This endpoint initiates an **Asynchronous process**. The API response
+        confirms that the bank flow has been started, while bank connectivity and
+        financial analysis are processed in the background. 
+
+        After the bank connection is completed, the system receives the user's bank
+        data. Based on the received bank data, financial analysis is performed in the
+        background.
+
+        Completion or failure
+        of the bank connectivity must be determined using iframe events and webhook
+        notifications.
+
+        ### Iframe Events
+
+        - `BANK_SUCCESS`  
+          Triggered when the Bank flow is completed successfully and banking data
+          has been submitted for analysis.
+
+        - `BANK_FAILURE`  
+          Triggered when the Bank flow fails or an error occurs at any stage of the
+          bank connection process.
+
+        ### Post-Analysis Webhooks
+
+        After bank analysis is completed, following webhook events will be
+        sent:
+
+        - `FINANCIAL_ANALYSIS_SUCCESS`  
+          Indicates that banking analysis has completed successfully.
+
+        - `FINANCIAL_ANALYSIS_FAILURE`  
+          Indicates that banking analysis has failed.
+
+          In case of failure, detailed error information can be retrieved by
+          calling **Get Tenant** API and inspecting the
+          `financial_info_errors` field in the tenant data.
+
+          Based on the reported error, clients may retry the banking analysis by
+          re-initiating the bank flow once the issue has been addressed.
+
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+        - name: country
+          in: query
+          required: true
+          description: Supported country for Bank connection.
+          schema:
+            type: string
+            enum:
+              - belgium
+              - germany
+              - denmark
+              - estonia
+              - spain
+              - finland
+              - france
+              - unitedKingdom
+              - italy
+              - lithuania
+              - latvia
+              - netherlands
+              - norway
+              - poland
+              - portugal
+              - sweden
+
+      responses:
+        "200":
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /tenants/run-forensic/{tenantId}:
+    get:
+      tags: [Tenants]
+      summary: Run Forensic Analysis
+      description: |
+        Triggers forensic analysis for a tenant.
+
+        ### Automatic Forensic Handling
+        In most cases, forensic analysis is **automatically managed by SKOR** once
+        all required prerequisites (such as document upload and KYC completion)
+        are satisfied.
+
+        ### Asynchronous Operation
+
+        This endpoint initiates an **asynchronous process**. The API response
+        immediately returns the current forensic processing status for the tenant
+        and indicates whether the tenant has been added to the forensic queue.
+        Forensic analysis itself is performed in the background.
+        Completion of forensic analysis is communicated via webhook events and
+        later can be inferred from the **Get API** response.
+
+        This endpoint does **not** wait for forensic analysis to complete.
+        Completion of forensic analysis is communicated separately via webhook
+        events.
+
+        This endpoint attempts to add the tenant to the forensic processing queue.
+        Depending on the tenant’s current state, the request may **not** be queued
+        and will instead return a status explaining why.
+
+        **Possible statuses returned:**
+
+        - **PENDING**
+          The tenant is already in the forensic queue and is waiting for their turn
+          to be picked up by the processor.
+
+        - **PROCESSING**
+          Forensic analysis is currently running for the tenant.
+          Skor Lite is actively processing the job.
+
+        - **DOCUMENTS_ANALYSIS_NOT_FOUND**
+          No documents are available for analysis and no document analysis
+          has been performed yet.
+
+        - **KYC_PENDING**
+          Identity verification (KYC) has not been completed yet.
+
+        - **QUEUED**
+          The tenant has been successfully added to the forensic processing queue
+          and will be processed shortly.
+
+        **Queue behavior:**
+        - If the status is **PENDING** or **PROCESSING**, the tenant is already
+          in the queue or being processed.
+        - If the status is **DOCUMENTS_ANALYSIS_NOT_FOUND** or **KYC_PENDING**,
+          the tenant is **not added to the queue**.
+        - In all other valid cases, the tenant is added to the forensic queue
+          for processing.
+
+        **Forensic completion webhook:**
+        When forensic analysis from Skor Lite is completed successfully, a webhook event
+        `FORENSIC_ANALYSIS_DATA` is sent.
+
+        **The webhook payload contains:**
+        - `event`: Event name (`FORENSIC_ANALYSIS_DATA`)
+        - `data`: Forensic analysis result data
+
+        The configured webhook endpoint **must accept POST requests**.
+
+      parameters:
+        - $ref: "#/components/parameters/TenantIdParam"
+
+      responses:
+        "200":
+          description: Forensic analysis status returned successfully
+          $ref: "#/components/responses/SuccessResponse"
+        "400":
+          description: Invalid request or tenant state
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          description: Unauthorized request
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          description: Internal server error
+          $ref: "#/components/responses/ErrorResponse"
