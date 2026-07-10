@@ -1,10 +1,10 @@
 openapi: 3.1.0
 
 servers:
-  - url: https://dev-api.skortorent.com/api/v1
-    description: Sandbox
   - url: https://api.skortorent.com/api/v1
     description: Live
+  - url: https://dev-api.skortorent.com/api/v1
+    description: Sandbox
 
 info:
   title: SKOR Modular API

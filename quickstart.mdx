@@ -17,17 +17,17 @@ Before you begin, make sure you have:
 
 | Environment | Base URL |
 | --- | --- |
-| Sandbox | `https://dev-api.skortorent.com/api/v1` |
 | Live | `https://api.skortorent.com/api/v1` |
+| Sandbox | `https://dev-api.skortorent.com/api/v1` |
 
-The examples below use sandbox. Replace the base URL with live when you are ready to use production credentials.
+The examples below use live. Replace the base URL with sandbox when testing with sandbox credentials.
 
 <Steps>
   <Step title="Generate an access token">
     Send a token request to `/keys/generate-token` using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
 
     ```bash
-    curl -X POST "https://dev-api.skortorent.com/api/v1/keys/generate-token" \
+    curl -X POST "https://api.skortorent.com/api/v1/keys/generate-token" \
       -u "$SKOR_CLIENT_ID:$SKOR_CLIENT_SECRET"
     ```
 
@@ -46,7 +46,7 @@ The examples below use sandbox. Replace the base URL with live when you are read
     Send the token as a bearer token in the `Authorization` header.
 
     ```bash
-    curl "https://dev-api.skortorent.com/api/v1/tenants/get-all-tenants" \
+    curl "https://api.skortorent.com/api/v1/tenants/get-all-tenants" \
       -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
     ```
   </Step>

@@ -1,0 +1,132 @@
+---
+title: "Modular API"
+description: "Modular API integration guide"
+---
+
+The Modular API provides an integration that enables full programmatic control over tenant workflows, including document processing, identity verification, banking connectivity, and forensic analysis.
+
+This page focuses exclusively on API-based integration. Use the **API Reference** section for the complete list of endpoints, request formats, and response schemas.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Generate an access token with your API key credentials and make your first request.
+  </Card>
+
+  <Card title="API Reference" icon="square-terminal" href="/api-reference">
+    Explore Modular API endpoints, request parameters, responses, and authentication requirements.
+  </Card>
+</CardGroup>
+
+## Authentication
+
+All Modular API interactions are scoped to API key credentials: a `client_id` and `client_secret`. An API key represents your integration and acts as the root container for tenants, webhooks, and processing workflows.
+
+To authenticate requests, generate an access token with your API key credentials using HTTP Basic Authentication. Then include that token in the request headers when calling protected endpoints.
+
+```bash
+Authorization: Bearer <token>
+```
+
+Each API key can manage multiple tenants. Webhooks are configured at the API key level and apply to all tenants created under that key.
+
+## Base URLs
+
+Choose the base URL for your environment:
+
+| Environment | Base URL |
+| --- | --- |
+| Live | `https://api.skortorent.com/api/v1` |
+| Sandbox | `https://dev-api.skortorent.com/api/v1` |
+
+Live is the default API reference environment. Switch to sandbox when testing with sandbox credentials.
+
+## Webhooks
+
+Webhooks allow SKOR to notify your system about important events asynchronously.
+
+Webhooks are configured per API key and deliver event notifications for all tenants associated with that key. These events help your system react when specific processes are completed.
+
+- Document analysis completion events
+- Cl@ve processing success events
+- KYC verification result events
+- Forensic analysis completion events
+- Financial analysis result events
+
+See **API Reference** > **Webhooks** > **Create Webhook**.
+
+## Tenant management
+
+Tenants are entities that you manage through the Modular API. Each tenant is associated with a specific API key.
+
+Once a tenant is created, you can manage subsequent actions such as document uploads, identity verification, banking connections, and forensic analysis.
+
+See **API Reference** > **Tenants** > **Create Tenant**.
+
+## Document upload and download
+
+Documents can be uploaded for a tenant at any point after creation. Examples include payslips, bank statements, tax returns, and identity documents.
+
+Uploaded documents are stored in the SKOR database and can be retrieved later when required.
+
+- Upload documents for a tenant using the Documents API.
+- Trigger document analysis automatically after successful upload.
+- Receive webhook events when document analysis is completed.
+- Download documents retrieved from Cl@ve.
+
+See **API Reference** > **Tenants** > **Upload Tenant Documents**, **Get Tenant Documents**, and **Initiate Cl@ve**.
+
+## Identity verification
+
+KYC verifies the tenant's identity using official identity documents.
+
+See **API Reference** > **Tenants** > **Initiate KYC**.
+
+## Financial scoring
+
+Banking data is analyzed and used in financial assessments.
+
+See **API Reference** > **Tenants** > **Initiate Bank**.
+
+## Forensic analysis
+
+Forensic analysis evaluates all available tenant data to detect inconsistencies, fraud indicators, and financial risk signals.
+
+<Note>
+  You do not need to manually trigger forensic analysis in most cases.
+</Note>
+
+Forensic analysis can run automatically when documents are uploaded, after KYC completion, and after successful bank connectivity. You may still trigger it manually if required.
+
+See **API Reference** > **Tenants** > **Run Forensic Analysis**.
+
+## End-to-end flow
+
+<Steps>
+  <Step title="Generate an access token">
+    Generate an access token using your API key credentials via HTTP Basic Authentication. Use this token to authenticate all subsequent API requests.
+  </Step>
+
+  <Step title="Configure webhooks">
+    Configure webhooks to receive asynchronous notifications for document analysis, Cl@ve events, KYC completion, forensic analysis, and financial analysis. Webhooks are optional, but strongly recommended for long-running processes.
+  </Step>
+
+  <Step title="Create tenants under the API key">
+    Create a tenant by providing their basic personal details. The endpoint documentation lists all required fields. Identification number and postcode are used to run Experian checks for defaulter and risk status.
+  </Step>
+
+  <Step title="Upload documents or retrieve them from Cl@ve">
+    Upload tenant documents manually, retrieve them through Cl@ve, or use both methods. Document submission is mandatory and acts as a blocking dependency for forensic analysis.
+  </Step>
+
+  <Step title="Initiate KYC verification">
+    Complete identity verification for the tenant. KYC verification is mandatory, and forensic analysis will not be triggered unless KYC has completed successfully.
+  </Step>
+
+  <Step title="Connect the tenant's bank">
+    Connect the tenant's bank account. This step is optional, but recommended because bank connectivity is required for Financial SKOR generation.
+  </Step>
+
+  <Step title="Consume results through APIs and webhooks">
+    Retrieve tenant operational data through APIs and consume asynchronous events delivered through webhooks.
+  </Step>
+</Steps>

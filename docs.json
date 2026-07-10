@@ -13,7 +13,20 @@
       {
         "group": "Guides",
         "pages": [
-          "index",
+          "index"
+        ]
+      },
+      {
+        "group": "SDK",
+        "pages": [
+          "sdk",
+          "sdk-auth"
+        ]
+      },
+      {
+        "group": "Modular API",
+        "pages": [
+          "modular-api",
           "quickstart"
         ]
       },
@@ -22,7 +35,6 @@
         "icon": "square-terminal",
         "openapi": "/api-reference/openapi.yaml",
         "pages": [
-          "api-reference/introduction",
           {
             "group": "Token",
             "pages": [

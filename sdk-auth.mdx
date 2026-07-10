@@ -1,0 +1,32 @@
+---
+title: "SDK authentication"
+description: "Authenticate SDK-related API calls"
+---
+
+SKOR provides public and secret keys for SDK integrations. Contact support if you need keys for your integration.
+
+## Public key
+
+The public key can be used in client-side applications. It identifies your integration and is used when invoking the SDK in the browser.
+
+Use the public key when initializing the SDK:
+
+```js
+const sdk = Skor({
+  publicKey: "YOUR_PUBLIC_KEY",
+});
+```
+
+## Secret key
+
+The secret key is used for server-side API calls. Keep it secure and do not expose it in client-side code.
+
+To authenticate SDK-related API requests from your server, include the secret key in the request header:
+
+```http
+x-api-secret: YOUR_SECRET_KEY
+```
+
+<Warning>
+  Never expose your secret key in browser code, mobile apps, logs, or public repositories.
+</Warning>
