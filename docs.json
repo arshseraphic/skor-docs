@@ -27,7 +27,7 @@
         ]
       },
       {
-        "group": "Modular API",
+        "group": "Modular API Guide",
         "pages": [
           "modular-api",
           "quickstart"
@@ -68,6 +68,41 @@
               "GET /tenants/initiate-kyc/{tenantId}",
               "GET /tenants/initiate-bank/{tenantId}",
               "GET /tenants/run-forensic/{tenantId}"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Property Management Guide",
+        "pages": [
+          "property-management"
+        ]
+      },
+      {
+        "group": "Property Management API Reference",
+        "icon": "building",
+        "openapi": "/property-management-api-reference/openapi.yaml",
+        "pages": [
+          {
+            "group": "Token",
+            "pages": [
+              "POST /auth/token"
+            ]
+          },
+          {
+            "group": "Workspace",
+            "pages": [
+              "GET /workspaces"
+            ]
+          },
+          {
+            "group": "Property",
+            "pages": [
+              "POST /properties",
+              "GET /properties",
+              "GET /properties/{property_id}",
+              "PATCH /properties/{property_id}",
+              "DELETE /properties/{property_id}"
             ]
           }
         ]

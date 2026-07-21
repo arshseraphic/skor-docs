@@ -1,0 +1,210 @@
+---
+title: "Property Management"
+description: "Manage landlord workspaces and properties through the Property Management API"
+---
+
+The Property Management API gives landlords programmatic access to their workspaces and properties. Use it to list accessible workspaces, create properties in bulk, retrieve property records, update property details, and remove properties.
+
+<Warning>
+  The Property Management API uses its own authentication flow. Modular API keys, Modular API tokens, and regular application tokens do not work with these endpoints.
+</Warning>
+
+<Card title="Property Management API Reference" icon="building" href="/property-management-api-reference">
+  Explore token, workspace, and property endpoints, including request fields and response schemas.
+</Card>
+
+## Base URLs
+
+Choose the base URL for your environment:
+
+| Environment | Base URL |
+| --- | --- |
+| Live | `https://api.skortorent.com/api/v1/property-management` |
+| Sandbox | `https://dev-api.skortorent.com/api/v1/property-management` |
+
+## Authentication
+
+Generate a dedicated property management token with the landlord's email and password. Send the email as the HTTP Basic Auth username and the password as the HTTP Basic Auth password.
+
+```bash
+curl --request POST \
+  --user 'landlord@example.com:secret' \
+  'https://api.skortorent.com/api/v1/property-management/auth/token'
+```
+
+Do not include the landlord credentials in a JSON body. The response includes the token type, expiration time, and a bearer token that remains valid for 24 hours.
+
+Pass the token to every workspace and property endpoint:
+
+```bash
+Authorization: Bearer <token>
+```
+
+## Workspaces
+
+List the workspaces available to the authenticated landlord before making a property request:
+
+```bash
+curl --request GET \
+  --header 'Authorization: Bearer <token>' \
+  'https://api.skortorent.com/api/v1/property-management/workspaces'
+```
+
+Each result contains a `workspace_id` and `workspace_name`. The `workspace_id` is the public workspace UUID. Include it in every property request.
+
+### Workspace permissions
+
+Your role controls the operations you can perform:
+
+| Role | Read properties | Create, update, and delete properties |
+| --- | --- | --- |
+| `OWNER` | Yes | Yes |
+| `GOLD` | Yes | Yes |
+| `SILVER` | Yes | Yes |
+| `BRONZE` | Yes | No |
+| `GUEST` | Yes | No |
+
+A request for a missing workspace returns `404`. A request without workspace access, or without the required role, returns `403`.
+
+## Property fields
+
+The API accepts property data in snake case:
+
+| Field | Type | Required when creating | Description |
+| --- | --- | --- | --- |
+| `rent_amount` | Number | Yes | Monthly rent. Must be greater than zero. |
+| `street` | String | Yes | Street name. |
+| `street_number` | Integer | Yes | Street number. Must be greater than zero. |
+| `postal_code` | String | Yes | Postal code. |
+| `floor` | Integer | Yes | Floor number. |
+| `letter` | String | Yes | Unit or flat letter. |
+| `province` | String | Yes | Province name. |
+| `municipality` | String | Yes | Municipality name. |
+| `entrance_stairwell` | String | No | Entrance or stairwell identifier. |
+| `bedrooms` | Integer | No | Bedroom count.  |
+| `bathrooms` | Integer | No | Bathroom count.  |
+| `property_reference` | String | No | Your external property reference. |
+
+## Create properties
+
+Create multiple properties in one request. Use an array with one item to create a single property.
+
+```bash
+curl --request POST \
+  --url 'https://api.skortorent.com/api/v1/property-management/properties' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "workspace_id": "Ab12Cd",
+    "properties": [
+      {
+        "rent_amount": 1250,
+        "street": "Calle Mayor",
+        "street_number": 12,
+        "postal_code": "28013",
+        "floor": 3,
+        "letter": "B",
+        "province": "Madrid",
+        "municipality": "Madrid",
+        "entrance_stairwell": "2",
+        "bedrooms": 2,
+        "bathrooms": 1,
+        "property_reference": "MAD-12-3B"
+      }
+    ]
+  }'
+```
+
+Duplicate detection compares all required address fields without regard to capitalization. It applies to active properties in the selected workspace and to duplicates within the same bulk request.
+
+If any property is a duplicate, the API returns `409` and does not insert any item from the request.
+
+## List properties
+
+List properties with pagination:
+
+```bash
+curl --request GET \
+  --header 'Authorization: Bearer <token>' \
+  'https://api.skortorent.com/api/v1/property-management/properties?workspace_id=Ab12Cd&page=1&limit=20'
+```
+
+`page` defaults to `1`. `limit` defaults to `20` and accepts a maximum of `100`. The response includes `page`, `limit`, `total`, and `total_pages`.
+
+## Get a property
+
+Pass the property ID in the path and the workspace UUID in the query string:
+
+```bash
+curl --request GET \
+  --header 'Authorization: Bearer <token>' \
+  'https://api.skortorent.com/api/v1/property-management/properties/<property_id>?workspace_id=Ab12Cd'
+```
+
+## Update a property
+
+Send the `workspace_id` and at least one property field. The API applies the same validation and duplicate detection rules used during creation.
+
+```bash
+curl --request PATCH \
+  --url 'https://api.skortorent.com/api/v1/property-management/properties/<property_id>' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "workspace_id": "Ab12Cd",
+    "rent_amount": 1325
+  }'
+```
+
+## Delete a property
+
+Deleting a property soft-deletes it.
+
+```bash
+curl --request DELETE \
+  --header 'Authorization: Bearer <token>' \
+  'https://api.skortorent.com/api/v1/property-management/properties/<property_id>?workspace_id=Ab12Cd'
+```
+
+## Response format
+
+Successful responses use the standard v1 envelope:
+
+```json
+{
+  "status": "success",
+  "message": "Request completed successfully",
+  "data": {}
+}
+```
+
+Validation errors include the affected field and a message:
+
+```json
+{
+  "status": "error",
+  "message": "Request validation failed",
+  "errors": [
+    {
+      "field": "properties.0.street",
+      "message": "properties.0.street is required"
+    }
+  ]
+}
+```
+
+## Recommended flow
+
+<Steps>
+  <Step title="Generate a property management token">
+    Authenticate with the landlord's email and password through HTTP Basic Auth. Store the returned bearer token securely.
+  </Step>
+
+  <Step title="List accessible workspaces">
+    Retrieve the landlord's workspaces and select the public `workspace_id` for subsequent requests.
+  </Step>
+
+  <Step title="Manage properties">
+    Create properties individually or in bulk, then use the list, get, update, and delete endpoints as needed.
+  </Step>
+</Steps>

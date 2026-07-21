@@ -1,0 +1,713 @@
+openapi: 3.1.0
+
+info:
+  title: SKOR Property Management API
+  version: 1.0.0
+  description: |
+    The Property Management API is a standalone landlord API for managing
+    accessible workspaces and their properties.
+
+    This API uses dedicated property management tokens. It does not accept
+    Modular API keys, Modular API tokens, or regular application tokens.
+
+    All responses use the SKOR v1 response envelope. Successful responses
+    contain `status`, `message`, and `data`. Validation errors can also contain
+    an `errors` array with field-specific messages.
+
+servers:
+  - url: https://api.skortorent.com/api/v1/property-management
+    description: Live
+  - url: https://dev-api.skortorent.com/api/v1/property-management
+    description: Sandbox
+
+security:
+  - PropertyManagementBearer: []
+
+tags:
+  - name: Token
+    description: Generate a dedicated property management bearer token.
+  - name: Workspace
+    description: List workspaces available to the authenticated landlord.
+  - name: Property
+    description: Create, list, retrieve, update, and delete properties.
+
+components:
+  securitySchemes:
+    LandlordBasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        Use the landlord email as the username and the landlord password as the
+        password. This authentication method is only valid for `/auth/token`.
+
+    PropertyManagementBearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Pass the token returned by `/auth/token` as
+        `Authorization: Bearer <token>`. The token expires after 24 hours.
+
+  parameters:
+    PropertyId:
+      name: property_id
+      in: path
+      required: true
+      description: Unique property identifier.
+      schema:
+        type: string
+      example: 6655c944c2e40f249b664e74
+
+    WorkspaceIdQuery:
+      name: workspace_id
+      in: query
+      required: true
+      description: Public workspace UUID. This is not the workspace MongoDB `_id`.
+      schema:
+        type: string
+      example: Ab12Cd
+
+  schemas:
+    ValidationIssue:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          description: Request field that failed validation.
+          example: properties.0.street
+        message:
+          type: string
+          description: Human-readable validation message.
+          example: properties.0.street is required
+
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          const: error
+        message:
+          type: string
+          example: Request validation failed
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ValidationIssue"
+
+    Token:
+      type: object
+      required:
+        - token
+        - token_type
+        - expires_in_seconds
+        - expires_at
+      properties:
+        token:
+          type: string
+          description: Dedicated property management bearer token.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          example: Bearer
+        expires_in_seconds:
+          type: integer
+          example: 86400
+        expires_at:
+          type: string
+          format: date-time
+          example: "2026-07-22T10:00:00.000Z"
+
+    TokenSuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Token generated successfully
+        data:
+          $ref: "#/components/schemas/Token"
+
+    Workspace:
+      type: object
+      required:
+        - workspace_id
+        - workspace_name
+      properties:
+        workspace_id:
+          type: string
+          description: Public workspace UUID, not the MongoDB `_id`.
+          example: Ab12Cd
+        workspace_name:
+          type: string
+          example: Brand new workspace
+
+    WorkspaceListData:
+      type: object
+      required:
+        - workspaces
+      properties:
+        workspaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/Workspace"
+
+    WorkspaceListSuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Workspaces retrieved successfully
+        data:
+          $ref: "#/components/schemas/WorkspaceListData"
+
+    PropertyInput:
+      type: object
+      required:
+        - rent_amount
+        - street
+        - street_number
+        - postal_code
+        - floor
+        - letter
+        - province
+        - municipality
+      properties:
+        rent_amount:
+          type: number
+          exclusiveMinimum: 0
+          description: Monthly rent amount.
+          example: 1250
+        street:
+          type: string
+          minLength: 1
+          example: Calle Mayor
+        street_number:
+          type: integer
+          minimum: 1
+          example: 12
+        postal_code:
+          type: string
+          minLength: 1
+          example: "28013"
+        floor:
+          type: integer
+          minimum: 0
+          example: 3
+        letter:
+          type: string
+          minLength: 1
+          example: B
+        province:
+          type: string
+          minLength: 1
+          example: Madrid
+        municipality:
+          type: string
+          minLength: 1
+          example: Madrid
+        entrance_stairwell:
+          type: string
+          minLength: 1
+          example: "2"
+        bedrooms:
+          type: integer
+          minimum: 0
+          example: 2
+        bathrooms:
+          type: integer
+          minimum: 0
+          example: 1
+        property_reference:
+          type: string
+          minLength: 1
+          description: External property reference. It is not used for duplicate detection.
+          example: MAD-12-3B
+
+    Property:
+      allOf:
+        - type: object
+          properties:
+            property_id:
+              type: string
+              description: Unique property identifier.
+              example: 6655c944c2e40f249b664e74
+            workspace_id:
+              type: string
+              description: Public UUID of the workspace containing the property.
+              example: Ab12Cd
+        - $ref: "#/components/schemas/PropertyInput"
+
+    CreatePropertiesRequest:
+      type: object
+      required:
+        - workspace_id
+        - properties
+      properties:
+        workspace_id:
+          type: string
+          description: Public workspace UUID.
+          example: Ab12Cd
+        properties:
+          type: array
+          minItems: 1
+          maxItems: 100
+          description: Properties to create. The operation is atomic when a duplicate is found.
+          items:
+            $ref: "#/components/schemas/PropertyInput"
+
+    UpdatePropertyRequest:
+      type: object
+      required:
+        - workspace_id
+      minProperties: 2
+      properties:
+        workspace_id:
+          type: string
+          description: Public workspace UUID.
+          example: Ab12Cd
+        rent_amount:
+          type: number
+          exclusiveMinimum: 0
+          example: 1325
+        street:
+          type: string
+          minLength: 1
+        street_number:
+          type: integer
+          minimum: 1
+        postal_code:
+          type: string
+          minLength: 1
+        floor:
+          type: integer
+          minimum: 0
+        letter:
+          type: string
+          minLength: 1
+        province:
+          type: string
+          minLength: 1
+        municipality:
+          type: string
+          minLength: 1
+        entrance_stairwell:
+          type: string
+          minLength: 1
+        bedrooms:
+          type: integer
+          minimum: 0
+        bathrooms:
+          type: integer
+          minimum: 0
+        property_reference:
+          type: string
+          minLength: 1
+
+    PropertyData:
+      type: object
+      properties:
+        property:
+          $ref: "#/components/schemas/Property"
+
+    PropertySuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Property retrieved successfully
+        data:
+          $ref: "#/components/schemas/PropertyData"
+
+    PropertyCollectionData:
+      type: object
+      properties:
+        properties:
+          type: array
+          items:
+            $ref: "#/components/schemas/Property"
+
+    PropertyCollectionSuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Properties created successfully
+        data:
+          $ref: "#/components/schemas/PropertyCollectionData"
+
+    PaginatedPropertyData:
+      type: object
+      required:
+        - properties
+        - page
+        - limit
+        - total
+        - total_pages
+      properties:
+        properties:
+          type: array
+          items:
+            $ref: "#/components/schemas/Property"
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 42
+        total_pages:
+          type: integer
+          example: 3
+
+    PaginatedPropertySuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Properties retrieved successfully
+        data:
+          $ref: "#/components/schemas/PaginatedPropertyData"
+
+    DeleteSuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Property deleted successfully
+        data:
+          type: object
+          additionalProperties: true
+
+  responses:
+    BadRequest:
+      description: The request is invalid or failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            status: error
+            message: Request validation failed
+            errors:
+              - field: properties.0.street
+                message: properties.0.street is required
+
+    Unauthorized:
+      description: Authentication is missing, invalid, expired, or uses the wrong token type.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Forbidden:
+      description: The landlord cannot access the workspace or lacks permission for the operation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    NotFound:
+      description: The workspace or property was not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    Conflict:
+      description: A property with the same required address fields already exists.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    ServerError:
+      description: An unexpected server error occurred.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+paths:
+  /auth/token:
+    post:
+      tags:
+        - Token
+      summary: Create Property Management Token
+      operationId: createPropertyManagementToken
+      security:
+        - LandlordBasicAuth: []
+      description: |
+        Creates a dedicated property management bearer token.
+
+        Send the landlord email as the HTTP Basic Auth username and the
+        landlord password as the password. Do not send credentials in the JSON
+        body. The returned token expires after 24 hours.
+      responses:
+        "200":
+          description: Token generated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenSuccessResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /workspaces:
+    get:
+      tags:
+        - Workspace
+      summary: List Accessible Workspaces
+      operationId: listAccessibleWorkspaces
+      description: |
+        Lists workspaces available to the authenticated landlord. Each
+        `workspace_id` is the public workspace UUID required by property
+        requests, not the workspace MongoDB `_id`.
+      responses:
+        "200":
+          description: Workspaces retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceListSuccessResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /properties:
+    post:
+      tags:
+        - Property
+      summary: Create Properties
+      operationId: createProperties
+      description: |
+        Creates one or multiple properties in a workspace. The landlord must
+        have the `OWNER`, `GOLD`, or `SILVER` role.
+
+        Duplicate detection compares all required address fields
+        case-insensitively. It covers active workspace properties and duplicate
+        addresses within the same request.
+
+        If any duplicate is found, the API returns `409` before inserting any
+        property from the request.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePropertiesRequest"
+      responses:
+        "200":
+          description: Properties created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyCollectionSuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    get:
+      tags:
+        - Property
+      summary: List Properties
+      operationId: listProperties
+      description: |
+        Lists active properties in a workspace. Any landlord with active
+        workspace access can read properties.
+      parameters:
+        - $ref: "#/components/parameters/WorkspaceIdQuery"
+        - name: page
+          in: query
+          required: false
+          description: Page number.
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          required: false
+          description: Number of properties per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Properties retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedPropertySuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /properties/{property_id}:
+    get:
+      tags:
+        - Property
+      summary: Get Property
+      operationId: getProperty
+      description: Retrieves one property from an accessible workspace.
+      parameters:
+        - $ref: "#/components/parameters/PropertyId"
+        - $ref: "#/components/parameters/WorkspaceIdQuery"
+      responses:
+        "200":
+          description: Property retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertySuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    patch:
+      tags:
+        - Property
+      summary: Update Property
+      operationId: updateProperty
+      description: |
+        Updates one or more fields on a property. Send `workspace_id` and at
+        least one property field. The landlord must have the `OWNER`, `GOLD`, or
+        `SILVER` role.
+
+        The resulting property is checked using the same validation and
+        duplicate detection rules as property creation.
+      parameters:
+        - $ref: "#/components/parameters/PropertyId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePropertyRequest"
+            example:
+              workspace_id: Ab12Cd
+              rent_amount: 1325
+      responses:
+        "200":
+          description: Property updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertySuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+    delete:
+      tags:
+        - Property
+      summary: Delete Property
+      operationId: deleteProperty
+      description: |
+        Soft-deletes a property. The landlord must have the `OWNER`, `GOLD`, or
+        `SILVER` role.
+      parameters:
+        - $ref: "#/components/parameters/PropertyId"
+        - $ref: "#/components/parameters/WorkspaceIdQuery"
+      responses:
+        "200":
+          description: Property deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteSuccessResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"

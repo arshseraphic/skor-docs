@@ -5,18 +5,23 @@ description: "Choose the right SKOR integration path"
 
 Welcome to the SKOR developer documentation.
 
-You can manage tenants with two integration approaches depending on how much control you want over the tenant workflow.
+Choose an integration based on the workflow you want to build.
 
 - **SDK method**: Use SKOR's JavaScript SDK to embed an iframe-based profile workflow in your application. SKOR manages the tenant flow while you configure and launch the session.
 - **Modular API method**: Use REST APIs directly for full programmatic control over tenants, documents, webhooks, identity verification, banking connectivity, and forensic analysis.
+- **Property Management API method**: Use a dedicated landlord API to list accessible workspaces and manage their properties.
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="SDK guide" icon="boxes" href="/sdk">
     Embed the SKOR profile session with the JavaScript SDK.
   </Card>
 
   <Card title="Modular API" icon="code" href="/modular-api">
     Build a custom integration with tenant, document, webhook, and verification APIs.
+  </Card>
+
+  <Card title="Property Management" icon="building" href="/property-management">
+    Manage landlord workspaces and properties with a dedicated API.
   </Card>
 </CardGroup>
 
@@ -26,4 +31,6 @@ If you want SKOR to handle the tenant profile workflow inside an embedded experi
 
 If you want direct backend control over the workflow, start with the [Modular API guide](/modular-api), then use the [Quickstart](/quickstart) to generate a token and make your first request.
 
-Looking for endpoint details? Use the **Modular API Reference** section in the sidebar.
+If you want to manage properties for a landlord, start with the [Property Management guide](/property-management).
+
+Looking for endpoint details? Use the **Modular API Reference** or **Property Management API Reference** section in the sidebar.
