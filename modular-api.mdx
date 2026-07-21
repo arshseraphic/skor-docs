@@ -5,14 +5,14 @@ description: "Modular API integration guide"
 
 The Modular API provides an integration that enables full programmatic control over tenant workflows, including document processing, identity verification, banking connectivity, and forensic analysis.
 
-This page focuses exclusively on API-based integration. Use the **API Reference** section for the complete list of endpoints, request formats, and response schemas.
+This page focuses exclusively on API-based integration. Use the **Modular API Reference** section for the complete list of endpoints, request formats, and response schemas.
 
 <CardGroup cols={2}>
   <Card title="Quickstart" icon="rocket" href="/quickstart">
     Generate an access token with your API key credentials and make your first request.
   </Card>
 
-  <Card title="API Reference" icon="square-terminal" href="/api-reference">
+  <Card title="Modular API Reference" icon="square-terminal" href="/api-reference">
     Explore Modular API endpoints, request parameters, responses, and authentication requirements.
   </Card>
 </CardGroup>
@@ -38,7 +38,7 @@ Choose the base URL for your environment:
 | Live | `https://api.skortorent.com/api/v1` |
 | Sandbox | `https://dev-api.skortorent.com/api/v1` |
 
-Live is the default API reference environment. Switch to sandbox when testing with sandbox credentials.
+Live is the default Modular API reference environment. Switch to sandbox when testing with sandbox credentials.
 
 ## Webhooks
 
@@ -52,7 +52,7 @@ Webhooks are configured per API key and deliver event notifications for all tena
 - Forensic analysis completion events
 - Financial analysis result events
 
-See **API Reference** > **Webhooks** > **Create Webhook**.
+See **Modular API Reference** > **Webhooks** > **Create Webhook**.
 
 ## Tenant management
 
@@ -60,7 +60,7 @@ Tenants are entities that you manage through the Modular API. Each tenant is ass
 
 Once a tenant is created, you can manage subsequent actions such as document uploads, identity verification, banking connections, and forensic analysis.
 
-See **API Reference** > **Tenants** > **Create Tenant**.
+See **Modular API Reference** > **Tenants** > **Create Tenant**.
 
 ## Document upload and download
 
@@ -73,19 +73,19 @@ Uploaded documents are stored in the SKOR database and can be retrieved later wh
 - Receive webhook events when document analysis is completed.
 - Download documents retrieved from Cl@ve.
 
-See **API Reference** > **Tenants** > **Upload Tenant Documents**, **Get Tenant Documents**, and **Initiate Cl@ve**.
+See **Modular API Reference** > **Tenants** > **Upload Tenant Documents**, **Get Tenant Documents**, and **Initiate Cl@ve**.
 
 ## Identity verification
 
 KYC verifies the tenant's identity using official identity documents.
 
-See **API Reference** > **Tenants** > **Initiate KYC**.
+See **Modular API Reference** > **Tenants** > **Initiate KYC**.
 
 ## Financial scoring
 
 Banking data is analyzed and used in financial assessments.
 
-See **API Reference** > **Tenants** > **Initiate Bank**.
+See **Modular API Reference** > **Tenants** > **Initiate Bank**.
 
 ## Forensic analysis
 
@@ -97,7 +97,7 @@ Forensic analysis evaluates all available tenant data to detect inconsistencies,
 
 Forensic analysis can run automatically when documents are uploaded, after KYC completion, and after successful bank connectivity. You may still trigger it manually if required.
 
-See **API Reference** > **Tenants** > **Run Forensic Analysis**.
+See **Modular API Reference** > **Tenants** > **Run Forensic Analysis**.
 
 ## End-to-end flow
 

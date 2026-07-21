@@ -31,7 +31,7 @@
         ]
       },
       {
-        "group": "API Reference",
+        "group": "Modular API Reference",
         "icon": "square-terminal",
         "openapi": "/api-reference/openapi.yaml",
         "pages": [
