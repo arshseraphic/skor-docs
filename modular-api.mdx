@@ -21,7 +21,7 @@ This page focuses exclusively on API-based integration. Use the **Modular API Re
 
 All Modular API interactions are scoped to API key credentials: a `client_id` and `client_secret`. An API key represents your integration and acts as the root container for tenants, webhooks, and processing workflows.
 
-To authenticate requests, generate an access token with your API key credentials using HTTP Basic Authentication. Then include that token in the request headers when calling protected endpoints.
+To authenticate requests, exchange your API key credentials at the shared `/authenticate/token` endpoint using HTTP Basic Authentication. Then include the one-hour token in the request headers when calling protected endpoints.
 
 ```bash
 Authorization: Bearer <token>
@@ -103,7 +103,7 @@ See **Modular API Reference** > **Tenants** > **Run Forensic Analysis**.
 
 <Steps>
   <Step title="Generate an access token">
-    Generate an access token using your API key credentials via HTTP Basic Authentication. Use this token to authenticate all subsequent API requests.
+    Generate an access token at `/authenticate/token` using your API key credentials via HTTP Basic Authentication. Use this token to authenticate all subsequent API requests.
   </Step>
 
   <Step title="Configure webhooks">

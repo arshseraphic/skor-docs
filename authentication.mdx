@@ -1,0 +1,40 @@
+---
+title: "Authentication"
+description: "Generate a access token for SKOR APIs"
+---
+
+SKOR uses one token endpoint for the Modular API and Property Management API.
+
+<Card title="Generate an access token" icon="key" href="#generate-a-token">
+  Exchange your `client_id` and `client_secret` for a one-hour bearer token.
+</Card>
+
+## Credentials
+
+Your integration receives a `client_id` and `client_secret`.
+
+## Generate a token
+
+Send `client_id` as the HTTP Basic Auth username and `client_secret` as the HTTP Basic Auth password:
+
+```bash
+curl --request POST \
+  --user 'cid_example:cs_example' \
+  'https://api.skortorent.com/api/v1/authenticate/token'
+```
+
+Do not send credentials in a JSON body. The returned token expires after one hour.
+
+## Use the token
+
+Pass the token to protected endpoints:
+
+```bash
+Authorization: Bearer <token>
+```
+
+Treat the token as a secret. Do not expose it in client-side code, logs, or public repositories.
+
+<Tip>
+  Need credentials or help with authentication? Contact [info@skortorent.com](mailto:info@skortorent.com).
+</Tip>

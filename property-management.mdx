@@ -5,12 +5,12 @@ description: "Manage landlord workspaces and properties through the Property Man
 
 The Property Management API gives landlords programmatic access to their workspaces and properties. Use it to list accessible workspaces, create properties in bulk, retrieve property records, update property details, and remove properties.
 
-<Warning>
-  The Property Management API uses its own authentication flow. Modular API keys, Modular API tokens, and regular application tokens do not work with these endpoints.
-</Warning>
+<Note>
+  The Modular API and Property Management API use the same token endpoint.
+</Note>
 
 <Card title="Property Management API Reference" icon="building" href="/property-management-api-reference">
-  Explore token, workspace, and property endpoints, including request fields and response schemas.
+  Explore workspace and property endpoints, including request fields and response schemas.
 </Card>
 
 ## Base URLs
@@ -24,15 +24,15 @@ Choose the base URL for your environment:
 
 ## Authentication
 
-Generate a dedicated property management token with your `client_id` and `client_secret`. Send the `client_id` as the HTTP Basic Auth username and the `client_secret` as the HTTP Basic Auth password.
+Generate a shared access token with your `client_id` and `client_secret`. Send the `client_id` as the HTTP Basic Auth username and the `client_secret` as the HTTP Basic Auth password.
 
 ```bash
 curl --request POST \
   --user 'cid_example:cs_example' \
-  'https://api.skortorent.com/api/v1/property-management/auth/token'
+  'https://api.skortorent.com/api/v1/authenticate/token'
 ```
 
-Do not include the client credentials in a JSON body. The response includes the token type, expiration time, and a bearer token that remains valid for one hour.
+Do not include the client credentials in a JSON body. The response includes a one-hour bearer token.
 
 Pass the token to every workspace and property endpoint:
 
@@ -196,8 +196,8 @@ Validation errors include the affected field and a message:
 ## Recommended flow
 
 <Steps>
-  <Step title="Generate a property management token">
-    Authenticate with your `client_id` and `client_secret` through HTTP Basic Auth. Store the returned one-hour bearer token securely.
+  <Step title="Generate a shared access token">
+    Authenticate at `/authenticate/token` with your `client_id` and `client_secret`. Store the returned one-hour bearer token securely.
   </Step>
 
   <Step title="List accessible workspaces">

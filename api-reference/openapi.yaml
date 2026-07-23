@@ -78,19 +78,12 @@ security:
 
 components:
   securitySchemes:
-    BasicAuth:
-      type: http
-      scheme: basic
-      description: |
-        HTTP Basic Authentication using your Modular API credentials.
-        Used exclusively to authenticate the token generation request.
-
     BearerAuth:
       type: http
       scheme: bearer
       description: |
-        HTTP Bearer Authentication. Pass the token generated via
-        `/keys/generate-token` as `Authorization: Bearer <token>`.
+        HTTP Bearer Authentication. Generate a shared token via
+        `/authenticate/token`, then pass it as `Authorization: Bearer <token>`.
 
   parameters:
     TenantIdParam:
@@ -184,49 +177,6 @@ components:
           description: Timestamp when the document was last updated
 
 paths:
-  ####################
-  # KEYS
-  ####################
-  /keys/generate-token:
-    post:
-      tags: [Token]
-      summary: Generate Token
-      security:
-        - BasicAuth: []
-      description: |
-        Generates an access **token** that is required to authenticate requests
-        to protected APIs.
-
-        ### Authentication
-
-        - Call this endpoint using **HTTP Basic Authentication**, passing your
-          Modular API credentials as the username and password.
-
-        ### Token Usage
-
-        - The generated token must be included as a **Bearer token** in the
-          `Authorization` header when calling other protected APIs:
-
-          **`Authorization: Bearer <token>`**
-
-        - Requests made without this header, or with an invalid or expired
-          token, will be rejected.
-
-        ### Security Notes
-
-        - Treat the token as a secret credential.
-        - Do not expose the token in client-side applications.
-        - If the token is suspected to be compromised, ***[contact us](mailto:info@skortorent.com)*** to
-          request token revocation or rotation.
-
-      responses:
-        "200":
-          $ref: "#/components/responses/SuccessResponse"
-        "401":
-          $ref: "#/components/responses/ErrorResponse"
-        "500":
-          $ref: "#/components/responses/ErrorResponse"
-
   ####################
   # WEBHOOKS
   ####################

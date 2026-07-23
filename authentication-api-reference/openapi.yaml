@@ -1,0 +1,134 @@
+openapi: 3.1.0
+
+info:
+  title: SKOR Authentication API
+  version: 1.0.0
+  description: |
+    Generate a shared bearer token for the SKOR Modular API and Property
+    Management API.
+
+servers:
+  - url: https://api.skortorent.com/api/v1
+    description: Live
+  - url: https://dev-api.skortorent.com/api/v1
+    description: Sandbox
+
+tags:
+  - name: Token
+    description: Exchange API key credentials for a shared bearer token.
+
+components:
+  securitySchemes:
+    ApiKeyBasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        Send `client_id` as the username and `client_secret` as the password.
+        Do not send credentials in the JSON body.
+
+  schemas:
+    AccessType:
+      type: string
+      enum:
+        - modular_api
+        - property_management
+      description: API service available to the authenticated key.
+
+    TokenData:
+      type: object
+      required:
+        - token
+        - token_type
+        - expires_in_seconds
+        - expires_at
+        - access_types
+      properties:
+        token:
+          type: string
+          description: Shared bearer token for every API listed in `access_types`.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          const: Bearer
+        expires_in_seconds:
+          type: integer
+          const: 3600
+          description: Token lifetime in seconds.
+        expires_at:
+          type: string
+          format: date-time
+          example: "2026-07-23T11:00:00.000Z"
+        access_types:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          description: API services available to the token.
+          items:
+            $ref: "#/components/schemas/AccessType"
+          example:
+            - modular_api
+            - property_management
+
+    TokenSuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Token generated successfully
+        data:
+          $ref: "#/components/schemas/TokenData"
+
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          const: error
+        message:
+          type: string
+          example: Invalid client credentials
+
+paths:
+  /authenticate/token:
+    post:
+      tags:
+        - Token
+      summary: Generate Access Token
+      operationId: generateAccessToken
+      security:
+        - ApiKeyBasicAuth: []
+      description: |
+        Exchanges a `client_id` and `client_secret` for a shared one-hour
+        bearer token.
+
+        Treat the token and client credentials as secrets. Do not expose them
+        in client-side applications, logs, or public repositories.
+      responses:
+        "200":
+          description: Token generated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenSuccessResponse"
+        "401":
+          description: The client credentials are missing, invalid, or belong to an inactive key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: An unexpected server error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

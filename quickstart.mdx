@@ -1,16 +1,16 @@
 ---
 title: "Quickstart"
-description: "Generate a Modular API token and make authenticated requests"
+description: "Generate a shared SKOR API token and make a Modular API request"
 ---
 
-Use this guide to authenticate with the SKOR Modular API and make your first protected request.
+Use the shared SKOR authentication flow, then make your first protected Modular API request.
 
 ## Prerequisites
 
 Before you begin, make sure you have:
 
-- A SKOR Modular API `client_id`
-- A SKOR Modular API `client_secret`
+- A SKOR API `client_id`
+- A SKOR API `client_secret`
 - The SKOR Modular API base URL for your environment
 
 ## Choose a base URL
@@ -24,14 +24,14 @@ The examples below use live. Replace the base URL with sandbox when testing with
 
 <Steps>
   <Step title="Generate an access token">
-    Send a token request to `/keys/generate-token` using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
+    Send a token request to `/authenticate/token` using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
 
     ```bash
-    curl -X POST "https://api.skortorent.com/api/v1/keys/generate-token" \
+    curl -X POST "https://api.skortorent.com/api/v1/authenticate/token" \
       -u "$SKOR_CLIENT_ID:$SKOR_CLIENT_SECRET"
     ```
 
-    The response returns a token that you use to authenticate protected Modular API requests.
+    The response returns a one-hour token for authenticated API requests.
   </Step>
 
   <Step title="Store the token securely">

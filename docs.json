@@ -27,6 +27,20 @@
         ]
       },
       {
+        "group": "API's Authentication",
+        "icon": "key",
+        "openapi": "/authentication-api-reference/openapi.yaml",
+        "pages": [
+          "authentication",
+          {
+            "group": "Token",
+            "pages": [
+              "POST /authenticate/token"
+            ]
+          }
+        ]
+      },
+      {
         "group": "Modular API Guide",
         "pages": [
           "modular-api",
@@ -38,12 +52,6 @@
         "icon": "square-terminal",
         "openapi": "/api-reference/openapi.yaml",
         "pages": [
-          {
-            "group": "Token",
-            "pages": [
-              "POST /keys/generate-token"
-            ]
-          },
           {
             "group": "Webhooks",
             "pages": [
@@ -83,12 +91,6 @@
         "icon": "building",
         "openapi": "/property-management-api-reference/openapi.yaml",
         "pages": [
-          {
-            "group": "Token",
-            "pages": [
-              "POST /auth/token"
-            ]
-          },
           {
             "group": "Workspace",
             "pages": [

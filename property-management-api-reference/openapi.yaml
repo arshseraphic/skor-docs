@@ -7,8 +7,8 @@ info:
     The Property Management API is a standalone landlord API for managing
     accessible workspaces and their properties.
 
-    This API uses dedicated property management tokens. It does not accept
-    Modular API keys, Modular API tokens, or regular application tokens.
+    The Modular API and Property Management API use the same API-key model and
+    shared token endpoint.
 
     All responses use the SKOR v1 response envelope. Successful responses
     contain `status`, `message`, and `data`. Validation errors can also contain
@@ -24,8 +24,6 @@ security:
   - PropertyManagementBearer: []
 
 tags:
-  - name: Token
-    description: Generate a dedicated property management bearer token.
   - name: Workspace
     description: List workspaces available to the authenticated landlord.
   - name: Property
@@ -33,21 +31,13 @@ tags:
 
 components:
   securitySchemes:
-    ClientCredentialsBasicAuth:
-      type: http
-      scheme: basic
-      description: |
-        Use `client_id` as the username and `client_secret` as the password.
-        Landlord email and password credentials are not accepted. This
-        authentication method is only valid for `/auth/token`.
-
     PropertyManagementBearer:
       type: http
       scheme: bearer
       bearerFormat: JWT
       description: |
-        Pass the token returned by `/auth/token` as
-        `Authorization: Bearer <token>`. The token expires after one hour.
+        Generate a shared token via `/authenticate/token`, then pass it as
+        `Authorization: Bearer <token>`.
 
   parameters:
     PropertyId:
@@ -100,45 +90,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ValidationIssue"
-
-    Token:
-      type: object
-      required:
-        - token
-        - token_type
-        - expires_in_seconds
-        - expires_at
-      properties:
-        token:
-          type: string
-          description: Dedicated property management bearer token.
-          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-        token_type:
-          type: string
-          example: Bearer
-        expires_in_seconds:
-          type: integer
-          example: 3600
-        expires_at:
-          type: string
-          format: date-time
-          example: "2026-07-21T11:00:00.000Z"
-
-    TokenSuccessResponse:
-      type: object
-      required:
-        - status
-        - message
-        - data
-      properties:
-        status:
-          type: string
-          const: success
-        message:
-          type: string
-          example: Token generated successfully
-        data:
-          $ref: "#/components/schemas/Token"
 
     Workspace:
       type: object
@@ -478,32 +429,6 @@ components:
             $ref: "#/components/schemas/ErrorResponse"
 
 paths:
-  /auth/token:
-    post:
-      tags:
-        - Token
-      summary: Create Property Management Token
-      operationId: createPropertyManagementToken
-      security:
-        - ClientCredentialsBasicAuth: []
-      description: |
-        Creates a dedicated property management bearer token.
-
-        Send `client_id` as the HTTP Basic Auth username and `client_secret` as
-        the HTTP Basic Auth password. Do not send credentials in the JSON body. The
-        returned token expires after one hour.
-      responses:
-        "200":
-          description: Token generated successfully.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TokenSuccessResponse"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "500":
-          $ref: "#/components/responses/ServerError"
-
   /workspaces:
     get:
       tags:
