@@ -151,10 +151,14 @@ components:
 
         file_name:
           type: string
+          description: Stored file name in the storage bucket.
+
+        url:
+          type: string
+          format: uri
           description: >
-            Stored file name in the storage bucket.
-            To download the document, construct the full URL as:
-            `https://skorcdn.blob.core.windows.net/uploads/{file_name}`
+            Pre-signed SAS URL to access the document.
+            Expires after 24 hours.
 
         type:
           type: string
@@ -1032,9 +1036,8 @@ paths:
       description: >
         Fetch all documents uploaded by a tenant.
 
-        The API returns only `file_name`.
-        To download a document, construct the URL as:
-        `https://skorcdn.blob.core.windows.net/uploads/{file_name}`
+        Each document includes a pre-signed SAS URL (`url`) that can be used
+        to access the file directly. The URL expires after 24 hours.
 
       parameters:
         - $ref: "#/components/parameters/TenantIdParam"
