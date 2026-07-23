@@ -33,12 +33,13 @@ tags:
 
 components:
   securitySchemes:
-    LandlordBasicAuth:
+    ClientCredentialsBasicAuth:
       type: http
       scheme: basic
       description: |
-        Use the landlord email as the username and the landlord password as the
-        password. This authentication method is only valid for `/auth/token`.
+        Use `client_id` as the username and `client_secret` as the password.
+        Landlord email and password credentials are not accepted. This
+        authentication method is only valid for `/auth/token`.
 
     PropertyManagementBearer:
       type: http
@@ -46,7 +47,7 @@ components:
       bearerFormat: JWT
       description: |
         Pass the token returned by `/auth/token` as
-        `Authorization: Bearer <token>`. The token expires after 24 hours.
+        `Authorization: Bearer <token>`. The token expires after one hour.
 
   parameters:
     PropertyId:
@@ -117,11 +118,11 @@ components:
           example: Bearer
         expires_in_seconds:
           type: integer
-          example: 86400
+          example: 3600
         expires_at:
           type: string
           format: date-time
-          example: "2026-07-22T10:00:00.000Z"
+          example: "2026-07-21T11:00:00.000Z"
 
     TokenSuccessResponse:
       type: object
@@ -484,13 +485,13 @@ paths:
       summary: Create Property Management Token
       operationId: createPropertyManagementToken
       security:
-        - LandlordBasicAuth: []
+        - ClientCredentialsBasicAuth: []
       description: |
         Creates a dedicated property management bearer token.
 
-        Send the landlord email as the HTTP Basic Auth username and the
-        landlord password as the password. Do not send credentials in the JSON
-        body. The returned token expires after 24 hours.
+        Send `client_id` as the HTTP Basic Auth username and `client_secret` as
+        the HTTP Basic Auth password. Do not send credentials in the JSON body. The
+        returned token expires after one hour.
       responses:
         "200":
           description: Token generated successfully.

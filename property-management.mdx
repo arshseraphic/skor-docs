@@ -24,15 +24,15 @@ Choose the base URL for your environment:
 
 ## Authentication
 
-Generate a dedicated property management token with the landlord's email and password. Send the email as the HTTP Basic Auth username and the password as the HTTP Basic Auth password.
+Generate a dedicated property management token with your `client_id` and `client_secret`. Send the `client_id` as the HTTP Basic Auth username and the `client_secret` as the HTTP Basic Auth password.
 
 ```bash
 curl --request POST \
-  --user 'landlord@example.com:secret' \
+  --user 'cid_example:cs_example' \
   'https://api.skortorent.com/api/v1/property-management/auth/token'
 ```
 
-Do not include the landlord credentials in a JSON body. The response includes the token type, expiration time, and a bearer token that remains valid for 24 hours.
+Do not include the client credentials in a JSON body. The response includes the token type, expiration time, and a bearer token that remains valid for one hour.
 
 Pass the token to every workspace and property endpoint:
 
@@ -197,7 +197,7 @@ Validation errors include the affected field and a message:
 
 <Steps>
   <Step title="Generate a property management token">
-    Authenticate with the landlord's email and password through HTTP Basic Auth. Store the returned bearer token securely.
+    Authenticate with your `client_id` and `client_secret` through HTTP Basic Auth. Store the returned one-hour bearer token securely.
   </Step>
 
   <Step title="List accessible workspaces">
