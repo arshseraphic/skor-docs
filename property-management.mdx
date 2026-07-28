@@ -3,10 +3,10 @@ title: "Property Management"
 description: "Manage landlord workspaces and properties through the Property Management API"
 ---
 
-The Property Management API gives landlords programmatic access to their workspaces and properties. Use it to list accessible workspaces, create properties in bulk, retrieve property records, update property details, and remove properties.
+The Property Management API gives landlords programmatic access to their workspaces and properties. Use it to [list accessible workspaces](/api-reference/workspace/list-accessible-workspaces), [create properties](/api-reference/property/create-properties) in bulk, [retrieve property records](/api-reference/property/get-property), [update property details](/api-reference/property/update-property), and [remove properties](/api-reference/property/delete-property).
 
 <Note>
-  The Modular API and Property Management API use the same token endpoint.
+  The Modular API and Property Management API use the same token endpoint, [Generate Access Token](/api-reference/token/generate-access-token).
 </Note>
 
 <Card title="Property Management API Reference" icon="building" href="/property-management-api-reference">
@@ -42,7 +42,7 @@ Authorization: Bearer <token>
 
 ## Workspaces
 
-List the workspaces available to the authenticated landlord before making a property request:
+Use [List Accessible Workspaces](/api-reference/workspace/list-accessible-workspaces) to list the workspaces available to the authenticated landlord before making a property request:
 
 ```bash
 curl --request GET \
@@ -87,7 +87,7 @@ The API accepts property data in snake case:
 
 ## Create properties
 
-Create multiple properties in one request. Use an array with one item to create a single property.
+Use [Create Properties](/api-reference/property/create-properties) to create multiple properties in one request. Use an array with one item to create a single property.
 
 ```bash
 curl --request POST \
@@ -121,7 +121,7 @@ If any property is a duplicate, the API returns `409` and does not insert any it
 
 ## List properties
 
-List properties with pagination:
+Use [List Properties](/api-reference/property/list-properties) to list properties with pagination:
 
 ```bash
 curl --request GET \
@@ -133,7 +133,7 @@ curl --request GET \
 
 ## Get a property
 
-Pass the property ID in the path and the workspace UUID in the query string:
+Use [Get Property](/api-reference/property/get-property). Pass the property ID in the path and the workspace UUID in the query string:
 
 ```bash
 curl --request GET \
@@ -143,7 +143,7 @@ curl --request GET \
 
 ## Update a property
 
-Send the `workspace_id` and at least one property field. The API applies the same validation and duplicate detection rules used during creation.
+Use [Update Property](/api-reference/property/update-property). Send the `workspace_id` and at least one property field. The API applies the same validation and duplicate detection rules used during creation.
 
 ```bash
 curl --request PATCH \
@@ -158,7 +158,7 @@ curl --request PATCH \
 
 ## Delete a property
 
-Deleting a property soft-deletes it.
+Use [Delete Property](/api-reference/property/delete-property). Deleting a property soft-deletes it.
 
 ```bash
 curl --request DELETE \
@@ -197,11 +197,11 @@ Validation errors include the affected field and a message:
 
 <Steps>
   <Step title="Generate a shared access token">
-    Authenticate at `/authenticate/token` with your `client_id` and `client_secret`. Store the returned one-hour bearer token securely.
+    Authenticate with [Generate Access Token](/api-reference/token/generate-access-token) using your `client_id` and `client_secret`. Store the returned one-hour bearer token securely.
   </Step>
 
   <Step title="List accessible workspaces">
-    Retrieve the landlord's workspaces and select the public `workspace_id` for subsequent requests.
+    Retrieve the landlord's workspaces with [List Accessible Workspaces](/api-reference/workspace/list-accessible-workspaces) and select the public `workspace_id` for subsequent requests.
   </Step>
 
   <Step title="Manage properties">

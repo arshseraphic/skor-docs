@@ -27,8 +27,8 @@ const sdk = Skor({
 
 <Note>
   The SDK is initialized with your public `client_id`. Your `client_secret` is used
-  only for server-side calls and must never be exposed in browser code. See
-  [SDK authentication](/sdk-auth).
+  only for server-side calls and must never be exposed in browser code. See the
+  [Authentication guide](/authentication) for how to generate a server access token.
 </Note>
 
 ## Start a profile session
@@ -37,10 +37,10 @@ Starting a profile session is a two-part flow: your **server** mints a tenant on
 
 ### 1. On your server — mint an onboarding token
 
-Using your Bearer access token (see [SDK authentication](/sdk-auth)):
+Using your Bearer access token (see the [Authentication guide](/authentication)):
 
-1. Create the tenant with **Create Tenant** and keep the returned `id` (the `tenantId`).
-2. Generate an onboarding token for that tenant:
+1. Create the tenant with [Create Tenant](/api-reference/tenants/create-tenant) and keep the returned `id` (the `tenantId`).
+2. Generate an onboarding token for that tenant with [Generate Onboarding Token](/api-reference/tenants/generate-onboarding-token):
 
 ```bash
 curl -X POST "https://api.skortorent.com/api/v1/tenants/onboarding-token/{tenantId}" \
@@ -60,7 +60,7 @@ const profileSessionInstance = sdk.startProfileSession({
 });
 ```
 
-The SDK automatically tracks the session's progress (via `/tenants/account-status`) and drives the callbacks below. You do not need to call the status endpoint yourself.
+The SDK automatically tracks the session's progress (via [Tenant Profile Status](/api-reference/tenants/tenant-profile-status)) and drives the callbacks below. You do not need to call the status endpoint yourself.
 
 ## Callbacks
 
@@ -117,5 +117,5 @@ onProfileReady: () => {
 ```
 
 <Tip>
-  Review [SDK authentication](/sdk-auth) before using the SDK in production.
+  Review the [Authentication guide](/authentication) before using the SDK in production.
 </Tip>

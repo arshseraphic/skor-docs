@@ -22,8 +22,7 @@
       {
         "group": "SDK",
         "pages": [
-          "sdk",
-          "sdk-auth"
+          "sdk"
         ]
       },
       {
