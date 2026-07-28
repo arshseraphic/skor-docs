@@ -46,11 +46,14 @@ Webhooks allow SKOR to notify your system about important events asynchronously.
 
 Webhooks are configured per API key and deliver event notifications for all tenants associated with that key. These events help your system react when specific processes are completed.
 
-- Document analysis completion events
-- Cl@ve processing success events
-- KYC verification result events
-- Forensic analysis completion events
-- Financial analysis result events
+- Tenant lifecycle events — `TENANT_CREATED`, `TENANT_UPDATED`, `TENANT_DELETED`, `TENANT_ONBOARDING_COMPLETED`
+- Document analysis completion — `DOCUMENT_ANALYSIS_DATA`
+- Cl@ve processing success — `CLAVE_SUCCESS`
+- KYC verification result — `KYC_VERIFICATION_DATA`
+- Forensic analysis completion — `FORENSIC_ANALYSIS_DATA`
+- Financial analysis result — `FINANCIAL_ANALYSIS_SUCCESS`, `FINANCIAL_ANALYSIS_FAILURE`
+
+Each webhook delivery is a `POST` with a JSON body of the form `{ "event": <EVENT_NAME>, "data": <payload> }`.
 
 See **Modular API Reference** > **Webhooks** > **Create Webhook**.
 

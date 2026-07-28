@@ -75,7 +75,10 @@
               "GET /tenants/get-documents/{tenantId}",
               "GET /tenants/initiate-kyc/{tenantId}",
               "GET /tenants/initiate-bank/{tenantId}",
-              "GET /tenants/run-forensic/{tenantId}"
+              "GET /tenants/run-forensic/{tenantId}",
+              "POST /tenants/onboarding-token/{tenantId}",
+              "GET /tenants/skor-analysis-details/{tenantId}",
+              "POST /tenants/account-status"
             ]
           }
         ]
