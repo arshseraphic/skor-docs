@@ -24,7 +24,7 @@ The examples below use live. Replace the base URL with sandbox when testing with
 
 <Steps>
   <Step title="Generate an access token">
-    Send a token request to `/authenticate/token` using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
+    Send a token request to [Generate Access Token](/api-reference/token/generate-access-token) using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
 
     ```bash
     curl -X POST "https://api.skortorent.com/api/v1/authenticate/token" \
@@ -43,7 +43,7 @@ The examples below use live. Replace the base URL with sandbox when testing with
   </Step>
 
   <Step title="Call protected endpoints">
-    Send the token as a bearer token in the `Authorization` header.
+    Send the token as a bearer token in the `Authorization` header. This example calls [Get All Tenants](/api-reference/tenants/get-all-tenants).
 
     ```bash
     curl "https://api.skortorent.com/api/v1/tenants/get-all-tenants" \

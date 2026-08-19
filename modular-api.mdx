@@ -21,7 +21,7 @@ This page focuses exclusively on API-based integration. Use the **Modular API Re
 
 All Modular API interactions are scoped to API key credentials: a `client_id` and `client_secret`. An API key represents your integration and acts as the root container for tenants, webhooks, and processing workflows.
 
-To authenticate requests, exchange your API key credentials at the shared `/authenticate/token` endpoint using HTTP Basic Authentication. Then include the one-hour token in the request headers when calling protected endpoints.
+To authenticate requests, exchange your API key credentials with [Generate Access Token](/api-reference/token/generate-access-token) using HTTP Basic Authentication (see the [Authentication guide](/authentication)). Then include the one-hour token in the request headers when calling protected endpoints.
 
 ```bash
 Authorization: Bearer <token>
@@ -57,13 +57,27 @@ When you create a webhook, you can provide an optional shared `secret` for that 
 
 You can replace the secret through **Update Webhook**. Send `null` or an empty string to remove it. **List Webhooks** and **Get Webhook** return the configured secret, so treat those API responses as sensitive.
 
-- Document analysis completion events
-- Cl@ve processing success events
-- KYC verification result events
-- Forensic analysis completion events
-- Financial analysis result events
+When you create a webhook, you can provide an optional shared `secret` for that URL. If a secret is configured, SKOR includes it in the `x-skor-signature` header on every webhook POST request. Compare this header with the stored secret before accepting the event.
 
-See **Modular API Reference** > **Webhooks** > **Create Webhook**.
+```json Create webhook request
+{
+  "url": "https://example.com/webhooks/skor",
+  "secret": "your-shared-secret"
+}
+```
+
+You can replace the secret through **Update Webhook**. Send `null` or an empty string to remove it. **List Webhooks** and **Get Webhook** return the configured secret, so treat those API responses as sensitive.
+
+- Tenant lifecycle events — `TENANT_CREATED`, `TENANT_UPDATED`, `TENANT_DELETED`, `TENANT_ONBOARDING_COMPLETED`
+- Document analysis completion — `DOCUMENT_ANALYSIS_DATA`
+- Cl@ve processing success — `CLAVE_SUCCESS`
+- KYC verification result — `KYC_VERIFICATION_DATA`
+- Forensic analysis completion — `FORENSIC_ANALYSIS_DATA`
+- Financial analysis result — `FINANCIAL_ANALYSIS_SUCCESS`, `FINANCIAL_ANALYSIS_FAILURE`
+
+Each webhook delivery is a `POST` with a JSON body of the form `{ "event": <EVENT_NAME>, "data": <payload> }`.
+
+Register an endpoint with [Create Webhook](/api-reference/webhooks/create-webhook).
 
 ## Tenant management
 
@@ -71,7 +85,7 @@ Tenants are entities that you manage through the Modular API. Each tenant is ass
 
 Once a tenant is created, you can manage subsequent actions such as document uploads, identity verification, banking connections, and forensic analysis.
 
-See **Modular API Reference** > **Tenants** > **Create Tenant**.
+Create a tenant with [Create Tenant](/api-reference/tenants/create-tenant). You can also [Get Tenant](/api-reference/tenants/get-tenant), [Get All Tenants](/api-reference/tenants/get-all-tenants), [Update Tenant](/api-reference/tenants/update-tenant), and [Delete Tenant](/api-reference/tenants/delete-tenant).
 
 ## Document upload and download
 
@@ -84,19 +98,19 @@ Uploaded documents are stored in the SKOR database and can be retrieved later wh
 - Receive webhook events when document analysis is completed.
 - Download documents retrieved from Cl@ve.
 
-See **Modular API Reference** > **Tenants** > **Upload Tenant Documents**, **Get Tenant Documents**, and **Initiate Cl@ve**.
+See [Upload Tenant Documents](/api-reference/tenants/upload-tenant-documents), [Get Tenant Documents](/api-reference/tenants/get-tenant-documents), and [Initiate Cl@ve](/api-reference/tenants/initiate-cl@ve).
 
 ## Identity verification
 
 KYC verifies the tenant's identity using official identity documents.
 
-See **Modular API Reference** > **Tenants** > **Initiate KYC**.
+See [Initiate KYC](/api-reference/tenants/initiate-kyc).
 
 ## Financial scoring
 
 Banking data is analyzed and used in financial assessments.
 
-See **Modular API Reference** > **Tenants** > **Initiate Bank**.
+See [Initiate Bank](/api-reference/tenants/initiate-bank).
 
 ## Forensic analysis
 
@@ -108,13 +122,13 @@ Forensic analysis evaluates all available tenant data to detect inconsistencies,
 
 Forensic analysis can run automatically when documents are uploaded, after KYC completion, and after successful bank connectivity. You may still trigger it manually if required.
 
-See **Modular API Reference** > **Tenants** > **Run Forensic Analysis**.
+See [Run Forensic Analysis](/api-reference/tenants/run-forensic-analysis). Retrieve results with [Tenant Skor Analysis Details](/api-reference/tenants/tenant-skor-analysis-details) or the full [Get Tenant](/api-reference/tenants/get-tenant) response.
 
 ## End-to-end flow
 
 <Steps>
   <Step title="Generate an access token">
-    Generate an access token at `/authenticate/token` using your API key credentials via HTTP Basic Authentication. Use this token to authenticate all subsequent API requests.
+    Generate an access token with [Generate Access Token](/api-reference/token/generate-access-token) using your API key credentials via HTTP Basic Authentication. Use this token to authenticate all subsequent API requests.
   </Step>
 
   <Step title="Configure webhooks">
