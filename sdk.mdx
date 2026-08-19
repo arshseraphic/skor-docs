@@ -9,11 +9,27 @@ Use the SDK when you want an iframe-based integration where SKOR manages the ten
 
 ## Installation
 
-The JavaScript SDK is available by URL. Include it in your HTML page:
+The JavaScript SDK is available by URL. Choose the URL that matches your credentials and environment.
 
-```html
-<script src="https://api.skortorent.com/sdk/skor.js"></script>
-```
+<Tabs>
+  <Tab title="Production">
+    ```html
+    <script src="https://api.skortorent.com/sdk/skor.js"></script>
+    ```
+  </Tab>
+
+  <Tab title="Sandbox">
+    ```html
+    <script src="https://dev-api.skortorent.com/sdk/skor.js"></script>
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  To test in the sandbox, use `https://dev-api.skortorent.com/sdk/skor.js`
+  together with sandbox credentials and the `https://dev-api.skortorent.com/api/v1`
+  API base URL. Do not mix sandbox tokens or credentials with the production SDK.
+</Note>
 
 ## Initialize
 
