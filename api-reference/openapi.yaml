@@ -177,7 +177,9 @@ components:
           anyOf:
             - type: string
             - type: "null"
-          description: Optional shared secret sent in the `x-skor-signature` header.
+          description: |
+            Optional signing secret used to generate a Svix-compatible signature.
+            The secret itself is never included in webhook deliveries.
         status:
           type: string
           enum: [active, inactive]
@@ -245,8 +247,10 @@ paths:
         Creates a webhook endpoint to receive system events.
 
         The provided webhook URL **must accept POST requests**.
-        You can provide an optional shared secret. When configured, SKOR sends
-        the secret in the `x-skor-signature` header on every delivery.
+        You can provide an optional signing secret. When configured, SKOR signs
+        the exact JSON request body using the Svix signing scheme and includes
+        `svix-id`, `svix-timestamp`, and `svix-signature` headers. The secret
+        itself is never sent to the webhook URL.
       requestBody:
         required: true
         content:
@@ -260,7 +264,7 @@ paths:
                   format: uri
                 secret:
                   type: string
-                  description: Optional shared secret for this webhook URL.
+                  description: Optional Svix signing secret for this webhook URL.
       responses:
         "200":
           $ref: "#/components/responses/WebhookResponse"

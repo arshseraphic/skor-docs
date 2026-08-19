@@ -46,7 +46,7 @@ Webhooks allow SKOR to notify your system about important events asynchronously.
 
 Webhooks are configured per API key and deliver event notifications for all tenants associated with that key. These events help your system react when specific processes are completed.
 
-When you create a webhook, you can provide an optional shared `secret` for that URL. If a secret is configured, SKOR includes it in the `x-skor-signature` header on every webhook POST request. Compare this header with the stored secret before accepting the event.
+When you create a webhook, you can provide an optional signing `secret` for that URL. SKOR keeps this value server-side and uses the Svix signing scheme to sign the exact JSON request body. The secret itself is never sent in a webhook request.
 
 ```json Create webhook request
 {
@@ -57,16 +57,64 @@ When you create a webhook, you can provide an optional shared `secret` for that 
 
 You can replace the secret through **Update Webhook**. Send `null` or an empty string to remove it. **List Webhooks** and **Get Webhook** return the configured secret, so treat those API responses as sensitive.
 
-When you create a webhook, you can provide an optional shared `secret` for that URL. If a secret is configured, SKOR includes it in the `x-skor-signature` header on every webhook POST request. Compare this header with the stored secret before accepting the event.
+For a webhook with a configured secret, each request includes these headers:
 
-```json Create webhook request
-{
-  "url": "https://example.com/webhooks/skor",
-  "secret": "your-shared-secret"
+```http
+svix-id: msg_...
+svix-timestamp: 1787138793
+svix-signature: v1,...
+```
+
+Install the official Svix library:
+
+```bash
+npm install svix
+```
+
+Verify the unmodified raw request body with the configured secret:
+
+```js Verify a webhook signature with Svix
+import { Webhook } from "svix";
+
+function verifySkorWebhook(rawBody, headers, secret) {
+  const webhook = new Webhook(secret, { format: "raw" });
+  return webhook.verify(rawBody, headers);
 }
 ```
 
-You can replace the secret through **Update Webhook**. Send `null` or an empty string to remove it. **List Webhooks** and **Get Webhook** return the configured secret, so treat those API responses as sensitive.
+The verification method checks the signature and rejects timestamps outside Svix's allowed tolerance. It throws when verification fails.
+
+For an Express endpoint, use a raw body parser before any global JSON parser:
+
+```js Express verification endpoint
+import express from "express";
+import { Webhook } from "svix";
+
+app.post(
+  "/webhooks/skor",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    try {
+      const webhook = new Webhook(process.env.SKOR_WEBHOOK_SECRET, {
+        format: "raw",
+      });
+      const event = webhook.verify(req.body, req.headers);
+
+      // Process the verified event.
+      console.log(event);
+      return res.sendStatus(200);
+    } catch {
+      return res.status(400).json({ error: "Invalid webhook signature" });
+    }
+  }
+);
+```
+
+The SKOR backend also exposes `POST /webhook-test` for delivery testing. Set `SKOR_WEBHOOK_TEST_SECRET` to the same secret configured for that test webhook before using the endpoint.
+
+<Warning>
+  Verify the signature against the raw body before parsing or modifying the JSON. A webhook URL, including a Convex HTTP action URL, is only the delivery destination. Configure a separate random secret when creating the webhook.
+</Warning>
 
 - Tenant lifecycle events — `TENANT_CREATED`, `TENANT_UPDATED`, `TENANT_DELETED`, `TENANT_ONBOARDING_COMPLETED`
 - Document analysis completion — `DOCUMENT_ANALYSIS_DATA`
