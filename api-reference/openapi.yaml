@@ -129,7 +129,64 @@ components:
               message:
                 type: string
 
+    WebhookResponse:
+      description: Webhook response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [success]
+              message:
+                type: string
+              data:
+                $ref: "#/components/schemas/Webhook"
+
+    WebhookListResponse:
+      description: Webhook list response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [success]
+              message:
+                type: string
+              data:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Webhook"
+
   schemas:
+    Webhook:
+      type: object
+      description: A webhook endpoint configured for the authenticated API key.
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the webhook.
+        url:
+          type: string
+          format: uri
+          description: URL that receives webhook POST requests.
+        secret:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Optional shared secret sent in the `x-skor-signature` header.
+        status:
+          type: string
+          enum: [active, inactive]
+        last_triggered_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: "null"
+
     TenantDocument:
       type: object
       description: Tenant uploaded document metadata
@@ -188,6 +245,8 @@ paths:
         Creates a webhook endpoint to receive system events.
 
         The provided webhook URL **must accept POST requests**.
+        You can provide an optional shared secret. When configured, SKOR sends
+        the secret in the `x-skor-signature` header on every delivery.
       requestBody:
         required: true
         content:
@@ -198,9 +257,13 @@ paths:
               properties:
                 url:
                   type: string
+                  format: uri
+                secret:
+                  type: string
+                  description: Optional shared secret for this webhook URL.
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/responses/WebhookResponse"
         "400":
           $ref: "#/components/responses/ErrorResponse"
         "401":
@@ -212,9 +275,12 @@ paths:
     get:
       tags: [Webhooks]
       summary: List Webhooks
+      description: |
+        Lists all webhooks configured for the authenticated API key. Each item
+        includes its `secret`, or `null` when no shared secret is configured.
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/responses/WebhookListResponse"
         "401":
           $ref: "#/components/responses/ErrorResponse"
         "500":
@@ -224,11 +290,12 @@ paths:
     get:
       tags: [Webhooks]
       summary: Get Webhook
+      description: Returns the webhook URL, shared secret, status, and last delivery time.
       parameters:
         - $ref: "#/components/parameters/WebhookIdParam"
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/responses/WebhookResponse"
         "401":
           $ref: "#/components/responses/ErrorResponse"
         "404":
@@ -250,14 +317,22 @@ paths:
               properties:
                 url:
                   type: string
+                  format: uri
                 status:
                   type: string
                   enum:
                     - active
                     - inactive
+                secret:
+                  anyOf:
+                    - type: string
+                    - type: "null"
+                  description: |
+                    Replaces the shared secret. Send `null` or an empty string
+                    to remove the existing secret.
       responses:
         "200":
-          $ref: "#/components/responses/SuccessResponse"
+          $ref: "#/components/responses/WebhookResponse"
         "401":
           $ref: "#/components/responses/ErrorResponse"
         "404":

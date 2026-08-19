@@ -46,6 +46,17 @@ Webhooks allow SKOR to notify your system about important events asynchronously.
 
 Webhooks are configured per API key and deliver event notifications for all tenants associated with that key. These events help your system react when specific processes are completed.
 
+When you create a webhook, you can provide an optional shared `secret` for that URL. If a secret is configured, SKOR includes it in the `x-skor-signature` header on every webhook POST request. Compare this header with the stored secret before accepting the event.
+
+```json Create webhook request
+{
+  "url": "https://example.com/webhooks/skor",
+  "secret": "your-shared-secret"
+}
+```
+
+You can replace the secret through **Update Webhook**. Send `null` or an empty string to remove it. **List Webhooks** and **Get Webhook** return the configured secret, so treat those API responses as sensitive.
+
 - Document analysis completion events
 - Cl@ve processing success events
 - KYC verification result events
