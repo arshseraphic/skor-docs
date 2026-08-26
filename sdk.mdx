@@ -73,10 +73,30 @@ Call `startProfileSession` with the onboarding token and the id of the container
 const profileSessionInstance = sdk.startProfileSession({
   token, // the onboarding token from your server
   containerId: "skor-container",
+  height: "800px",
 });
 ```
 
 The SDK automatically tracks the session's progress (via [Tenant Profile Status](/api-reference/tenants/tenant-profile-status)) and drives the callbacks below. You do not need to call the status endpoint yourself.
+
+### `height`
+
+The `height` property controls the height of the embedded iframe.
+
+It accepts either a CSS height value or a number:
+
+* CSS height values such as `"500px"`, or `"800px"`
+* A number, which is treated as pixels, such as `600`
+
+If `height` is not provided, it defaults to `500px`.
+
+```js
+const profileSessionInstance = sdk.startProfileSession({
+  token,
+  containerId: "skor-container",
+  height: "800px",
+});
+```
 
 ## Callbacks
 
