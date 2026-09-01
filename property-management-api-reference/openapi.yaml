@@ -584,7 +584,7 @@ paths:
         `province` and `municipality` must be an exact pair from the supported
         Spanish location catalog, including accents and bilingual names. The
         municipality must belong to the selected province.
-        <a href="/images/province-municipalities.txt" download="province-municipalities.json">Download the complete catalog</a>.
+        <a href="https://api.skortorent.com/images/province-municipalities.txt" download="province-municipalities.json">Download the complete catalog</a>.
 
         Duplicate detection compares all required address fields
         case-insensitively. It covers active workspace properties and duplicate
