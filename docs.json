@@ -96,6 +96,7 @@
           {
             "group": "Workspace",
             "pages": [
+              "POST /workspaces",
               "GET /workspaces"
             ]
           },

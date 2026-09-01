@@ -15,21 +15,35 @@ Before you begin, make sure you have:
 
 ## Choose a base URL
 
-| Environment | Base URL |
-| --- | --- |
-| Live | `https://api.skortorent.com/api/v1` |
-| Sandbox | `https://dev-api.skortorent.com/api/v1` |
+<Tabs>
+  <Tab title="Production">
+    `https://api.skortorent.com/api/v1`
+  </Tab>
+  <Tab title="Sandbox">
+    `https://dev-api.skortorent.com/api/v1`
+  </Tab>
+</Tabs>
 
-The examples below use live. Replace the base URL with sandbox when testing with sandbox credentials.
+Choose an environment once. The Production and Sandbox tabs stay synchronized across the examples on this page. Use credentials issued for the selected environment.
 
 <Steps>
   <Step title="Generate an access token">
     Send a token request to [Generate Access Token](/api-reference/token/generate-access-token) using HTTP Basic Authentication. Use your `client_id` as the username and your `client_secret` as the password.
 
-    ```bash
-    curl -X POST "https://api.skortorent.com/api/v1/authenticate/token" \
-      -u "$SKOR_CLIENT_ID:$SKOR_CLIENT_SECRET"
-    ```
+    <Tabs>
+      <Tab title="Production">
+        ```bash
+        curl -X POST "https://api.skortorent.com/api/v1/authenticate/token" \
+          -u "$SKOR_CLIENT_ID:$SKOR_CLIENT_SECRET"
+        ```
+      </Tab>
+      <Tab title="Sandbox">
+        ```bash
+        curl -X POST "https://dev-api.skortorent.com/api/v1/authenticate/token" \
+          -u "$SKOR_CLIENT_ID:$SKOR_CLIENT_SECRET"
+        ```
+      </Tab>
+    </Tabs>
 
     The response returns a one-hour token for authenticated API requests.
   </Step>
@@ -45,10 +59,20 @@ The examples below use live. Replace the base URL with sandbox when testing with
   <Step title="Call protected endpoints">
     Send the token as a bearer token in the `Authorization` header. This example calls [Get All Tenants](/api-reference/tenants/get-all-tenants).
 
-    ```bash
-    curl "https://api.skortorent.com/api/v1/tenants/get-all-tenants" \
-      -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
-    ```
+    <Tabs>
+      <Tab title="Production">
+        ```bash
+        curl "https://api.skortorent.com/api/v1/tenants/get-all-tenants" \
+          -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
+        ```
+      </Tab>
+      <Tab title="Sandbox">
+        ```bash
+        curl "https://dev-api.skortorent.com/api/v1/tenants/get-all-tenants" \
+          -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
+        ```
+      </Tab>
+    </Tabs>
   </Step>
 </Steps>
 

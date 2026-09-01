@@ -5,3 +5,9 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Local preview tooling
+.env.local
+.local-preview/
+.vscode/
+scripts/

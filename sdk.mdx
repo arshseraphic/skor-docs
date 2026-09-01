@@ -58,10 +58,20 @@ Using your Bearer access token (see the [Authentication guide](/authentication))
 1. Create the tenant with [Create Tenant](/api-reference/tenants/create-tenant) and keep the returned `id` (the `tenantId`).
 2. Generate an onboarding token for that tenant with [Generate Onboarding Token](/api-reference/tenants/generate-onboarding-token):
 
-```bash
-curl -X POST "https://api.skortorent.com/api/v1/tenants/onboarding-token/{tenantId}" \
-  -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
-```
+<Tabs>
+  <Tab title="Production">
+    ```bash
+    curl -X POST "https://api.skortorent.com/api/v1/tenants/onboarding-token/{tenantId}" \
+      -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
+    ```
+  </Tab>
+  <Tab title="Sandbox">
+    ```bash
+    curl -X POST "https://dev-api.skortorent.com/api/v1/tenants/onboarding-token/{tenantId}" \
+      -H "Authorization: Bearer $SKOR_ACCESS_TOKEN"
+    ```
+  </Tab>
+</Tabs>
 
 The response returns a short-lived, tenant-scoped `token`. Pass this `token` to your browser page.
 

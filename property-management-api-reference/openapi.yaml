@@ -25,7 +25,7 @@ security:
 
 tags:
   - name: Workspace
-    description: List workspaces available to the authenticated landlord.
+    description: Create and list workspaces for the authenticated landlord.
   - name: Property
     description: Create, list, retrieve, update, and delete properties.
 
@@ -105,6 +105,42 @@ components:
           type: string
           example: Brand new workspace
 
+    CreateWorkspaceRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: Workspace name.
+          example: Workspace Name
+
+    WorkspaceData:
+      type: object
+      required:
+        - workspace
+      properties:
+        workspace:
+          $ref: "#/components/schemas/Workspace"
+
+    WorkspaceSuccessResponse:
+      type: object
+      required:
+        - status
+        - message
+        - data
+      properties:
+        status:
+          type: string
+          const: success
+        message:
+          type: string
+          example: Workspace created successfully
+        data:
+          $ref: "#/components/schemas/WorkspaceData"
+
     WorkspaceListData:
       type: object
       required:
@@ -171,10 +207,65 @@ components:
         province:
           type: string
           minLength: 1
+          description: Supported Spanish province. The value must match the location catalog exactly.
+          enum:
+            - A Coruña
+            - Albacete
+            - Alicante/Alacant
+            - Almería
+            - Asturias
+            - Badajoz
+            - Barcelona
+            - Burgos
+            - Cantabria
+            - Castellón/Castelló
+            - Ceuta
+            - Ciudad Real
+            - Cuenca
+            - Cáceres
+            - Cádiz
+            - Córdoba
+            - Girona
+            - Granada
+            - Guadalajara
+            - Guipúzcoa
+            - Huelva
+            - Huesca
+            - Illes Balears
+            - Jaén
+            - La Rioja
+            - Las Palmas
+            - León
+            - Lleida
+            - Lugo
+            - Madrid
+            - Melilla
+            - Murcia
+            - Málaga
+            - Navarra
+            - Ourense
+            - Palencia
+            - Pontevedra
+            - Salamanca
+            - Santa Cruz de Tenerife
+            - Segovia
+            - Sevilla
+            - Soria
+            - Tarragona
+            - Teruel
+            - Toledo
+            - Valencia/València
+            - Valladolid
+            - Vizcaya
+            - Zamora
+            - Zaragoza
+            - Álava
+            - Ávila
           example: Madrid
         municipality:
           type: string
           minLength: 1
+          description: Municipality from the location catalog that belongs to the selected province. The value must match exactly.
           example: Madrid
         entrance_stairwell:
           type: string
@@ -222,7 +313,7 @@ components:
           type: array
           minItems: 1
           maxItems: 100
-          description: Properties to create. The operation is atomic when a duplicate is found.
+          description: Properties to create. Province and municipality values must be an exact pair from the supported location catalog. The operation is atomic when a duplicate is found.
           items:
             $ref: "#/components/schemas/PropertyInput"
 
@@ -430,6 +521,35 @@ components:
 
 paths:
   /workspaces:
+    post:
+      tags:
+        - Workspace
+      summary: Create Workspace
+      operationId: createWorkspace
+      description: |
+        Creates a workspace. Only `name` is required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateWorkspaceRequest"
+      responses:
+        "201":
+          description: Workspace created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkspaceSuccessResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
     get:
       tags:
         - Workspace
@@ -460,6 +580,11 @@ paths:
       description: |
         Creates one or multiple properties in a workspace. The landlord must
         have the `OWNER`, `GOLD`, or `SILVER` role.
+
+        `province` and `municipality` must be an exact pair from the supported
+        Spanish location catalog, including accents and bilingual names. The
+        municipality must belong to the selected province.
+        <a href="/images/province-municipalities.txt" download="province-municipalities.json">Download the complete catalog</a>.
 
         Duplicate detection compares all required address fields
         case-insensitively. It covers active workspace properties and duplicate

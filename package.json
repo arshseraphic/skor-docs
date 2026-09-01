@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "docs:dev": "node scripts/local-preview.mjs",
+    "docs:prepare-local": "node scripts/local-preview.mjs --prepare-only"
+  }
+}

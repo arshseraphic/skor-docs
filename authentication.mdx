@@ -17,11 +17,22 @@ Your integration receives a `client_id` and `client_secret`.
 
 Send `client_id` as the HTTP Basic Auth username and `client_secret` as the HTTP Basic Auth password:
 
-```bash
-curl --request POST \
-  --user 'cid_example:cs_example' \
-  'https://api.skortorent.com/api/v1/authenticate/token'
-```
+<Tabs>
+  <Tab title="Production">
+    ```bash
+    curl --request POST \
+      --user 'cid_example:cs_example' \
+      'https://api.skortorent.com/api/v1/authenticate/token'
+    ```
+  </Tab>
+  <Tab title="Sandbox">
+    ```bash
+    curl --request POST \
+      --user 'cid_example:cs_example' \
+      'https://dev-api.skortorent.com/api/v1/authenticate/token'
+    ```
+  </Tab>
+</Tabs>
 
 Do not send credentials in a JSON body. The returned token expires after one hour.
 
